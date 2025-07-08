@@ -1,6 +1,7 @@
 <template>
     <div class="search-page">
         <h1>🔍 Mahsulot qidirish</h1>
+
         <div class="input-wrapper">
             <input v-model="query" type="text" placeholder="Mahsulot nomini kiriting..." class="search-input" />
         </div>
@@ -68,14 +69,16 @@ const addToCart = (product) => {
 .search-page {
     padding: 16px;
     padding-bottom: 80px;
-    /* background: linear-gradient(145deg, #f5f5f5, #e9f5ea); */
+    background-color: var(--bg-color);
+    color: var(--text-color);
     min-height: 100vh;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 h1 {
     font-size: 22px;
     margin-bottom: 14px;
-    color: #333;
+    color: var(--text-color);
 }
 
 .input-wrapper {
@@ -88,10 +91,15 @@ h1 {
     border: none;
     border-radius: 14px;
     font-size: 16px;
-    background-color: #ffffff;
+    background-color: var(--card-bg);
+    color: var(--text-color);
     box-shadow: 0 4px 12px rgba(64, 172, 60, 0.12);
     transition: all 0.3s ease;
     outline: none;
+}
+
+.search-input::placeholder {
+    color: var(--muted);
 }
 
 .search-input:focus {
@@ -108,7 +116,7 @@ h1 {
 .no-results {
     margin-top: 30px;
     text-align: center;
-    color: #777;
+    color: var(--muted);
 }
 
 .no-result-img {

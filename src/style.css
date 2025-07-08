@@ -1,8 +1,31 @@
+:root {
+  --bg-color: #ffffff;
+  --text-color: #222222;
+  --card-bg: #f9f9f9;
+  --primary: #40ac3c;
+  --danger: #e53935;
+  --bg-gradient: linear-gradient(145deg, #fdfdfd, #e8fce6);
+  /* --bg-gradient: linear-gradient(145deg, #ffffff, #e8fce6); */
+}
 * {
   padding: 0;
   margin: 0;
   box-sizing: border-box;
 }
+
+body.dark-mode {
+  --bg-gradient: linear-gradient(145deg, #1a1f1a, #0e2f1b);
+
+  --bg-color: #121212;
+  --text-color: #e0e0e0;
+  --card-bg: #1e1e1e;
+  --primary: #58c755;
+  --danger: #ff6f61;
+}
+
 body {
+  background: var(--bg-gradient);
+  color: var(--text-color);
+  transition: background 0.3s, color 0.3s;
   font-family: "Noto Sans", sans-serif;
 }

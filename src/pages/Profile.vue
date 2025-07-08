@@ -45,16 +45,24 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 
 const userName = 'Iboxim'
 const avatarUrl = 'https://api.dicebear.com/7.x/fun-emoji/svg?seed=Iboxim'
 
 const isDark = ref(false)
+
 const toggleTheme = () => {
     isDark.value = !isDark.value
+    localStorage.setItem('theme', isDark.value ? 'dark' : 'light')
     document.body.classList.toggle('dark-mode', isDark.value)
 }
+
+onMounted(() => {
+    const saved = localStorage.getItem('theme')
+    isDark.value = saved === 'dark'
+    document.body.classList.toggle('dark-mode', isDark.value)
+})
 
 const orders = ref([
     { id: 1, title: 'Pizza Margherita' },
@@ -74,6 +82,8 @@ const logout = () => {
 .profile-page {
     padding: 20px 16px 100px;
     min-height: 100vh;
+    background-color: var(--bg-color);
+    color: var(--text-color);
 }
 
 /* Avatar style */
@@ -85,7 +95,7 @@ const logout = () => {
 .avatar-wrap {
     display: inline-block;
     padding: 4px;
-    background: linear-gradient(135deg, #40ac3c, #2d7a2a);
+    background: linear-gradient(135deg, var(--primary), #2d7a2a);
     border-radius: 50%;
 }
 
@@ -94,28 +104,28 @@ const logout = () => {
     height: 90px;
     border-radius: 50%;
     object-fit: cover;
-    border: 3px solid white;
+    border: 3px solid var(--bg-color);
 }
 
 h2 {
     margin-top: 10px;
     font-size: 18px;
-    color: #2e7d32;
+    color: var(--text-color);
 }
 
 /* Cards */
 .card {
-    background: white;
+    background: var(--card-bg);
     border-radius: 16px;
     padding: 14px 16px;
     margin-bottom: 20px;
-    box-shadow: 0 2px 12px rgba(64, 172, 60, 0.1);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
 }
 
 h3 {
     margin-bottom: 10px;
     font-size: 16px;
-    color: #2e7d32;
+    color: var(--text-color);
 }
 
 .setting-row {
@@ -126,8 +136,8 @@ h3 {
 }
 
 .theme-btn {
-    background: #40ac3c;
-    color: white;
+    background: var(--primary);
+    color: var(--tg-button-text-color, #fff);
     border: none;
     padding: 6px 12px;
     border-radius: 8px;
@@ -137,7 +147,7 @@ h3 {
 }
 
 .theme-btn:hover {
-    background: #2d7a2a;
+    filter: brightness(0.9);
 }
 
 /* Buyurtmalar */
@@ -148,12 +158,12 @@ h3 {
 }
 
 .order-chip {
-    background: #e6f4ea;
+    background: rgba(64, 172, 60, 0.1);
     padding: 6px 12px;
     border-radius: 20px;
     font-size: 13px;
-    color: #2e7d32;
-    border: 1px solid #c5e1c5;
+    color: var(--primary);
+    border: 1px solid rgba(64, 172, 60, 0.2);
 }
 
 /* Support */
@@ -161,8 +171,8 @@ h3 {
     display: inline-block;
     margin-top: 6px;
     text-decoration: none;
-    color: #40ac3c;
-    background: #f0fdf4;
+    color: var(--primary);
+    background: rgba(64, 172, 60, 0.05);
     padding: 8px 14px;
     border-radius: 10px;
     font-weight: 500;
@@ -170,7 +180,7 @@ h3 {
 }
 
 .support-btn:hover {
-    background: #e2fbe9;
+    background: rgba(64, 172, 60, 0.12);
 }
 
 /* Logout */
@@ -180,7 +190,7 @@ h3 {
 }
 
 .logout-btn {
-    background: #e53935;
+    background: var(--danger);
     color: white;
     padding: 10px 24px;
     border: none;
@@ -191,6 +201,6 @@ h3 {
 }
 
 .logout-btn:hover {
-    background: #c62828;
+    filter: brightness(0.9);
 }
 </style>

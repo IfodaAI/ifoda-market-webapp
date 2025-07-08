@@ -28,13 +28,15 @@ const links = [
     left: 0;
     right: 0;
     height: 64px;
-    background-color: #ffffff;
+    background-color: var(--card-bg);
     display: flex;
     justify-content: space-around;
     align-items: center;
-    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
-    border-top: 1px solid #e0e0e0;
-    z-index: 1000;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.04);
+    z-index: 9999;
+    transition: background-color 0.3s ease;
+    backdrop-filter: blur(10px);
 }
 
 .nav-item {
@@ -43,16 +45,23 @@ const links = [
     align-items: center;
     font-size: 12px;
     text-decoration: none;
-    color: #777;
-    transition: color 0.2s ease;
+    color: var(--text-color);
+    transition: all 0.2s ease;
+    font-weight: 500;
 }
 
 .nav-item .icon {
     font-size: 20px;
+    margin-bottom: 2px;
+    transition: transform 0.2s ease;
 }
 
 .nav-item.active {
-    color: #40ac3c;
-    font-weight: bold;
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.nav-item.active .icon {
+    transform: scale(1.2);
 }
 </style>

@@ -79,8 +79,9 @@ const formatPrice = (price) => {
 
 .detail-page {
     padding: 16px;
-    background: linear-gradient(135deg, #f5fff5, #e7f9e5);
+    background: var(--bg-color);
     min-height: 100vh;
+    transition: background 0.3s;
 }
 
 .product-image {
@@ -100,12 +101,12 @@ const formatPrice = (price) => {
 .title {
     font-size: 20px;
     font-weight: bold;
-    color: #2e7d32;
+    color: var(--text-color);
 }
 
 .price {
     font-size: 18px;
-    color: #40ac3c;
+    color: var(--primary);
     font-weight: 700;
     text-shadow: 0 1px 2px rgba(64, 172, 60, 0.1);
 }
@@ -113,15 +114,15 @@ const formatPrice = (price) => {
 .description {
     font-size: 14px;
     line-height: 1.5;
-    color: #333;
-    background: #fff;
+    color: var(--text-color);
+    background: var(--card-bg);
     padding: 12px;
     border-radius: 12px;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
 .add-btn {
-    background-color: #40ac3c;
+    background-color: var(--primary);
     color: white;
     padding: 12px 20px;
     border: none;
@@ -133,7 +134,7 @@ const formatPrice = (price) => {
 }
 
 .add-btn:hover {
-    background-color: #349a33;
+    filter: brightness(1.1);
     box-shadow: 0 4px 14px rgba(64, 172, 60, 0.3);
 }
 
@@ -143,7 +144,7 @@ const formatPrice = (price) => {
     gap: 6px;
     background: none;
     border: none;
-    color: #40ac3c;
+    color: var(--primary);
     font-weight: 600;
     font-size: 15px;
     cursor: pointer;
@@ -159,5 +160,6 @@ const formatPrice = (price) => {
 .back-btn svg {
     width: 20px;
     height: 20px;
+    fill: var(--primary);
 }
 </style>

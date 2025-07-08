@@ -17,18 +17,18 @@ defineProps({
 .container {
     max-width: 500px;
     width: 100%;
-    background: linear-gradient(145deg, #fdfdfd, #e8fce6);
+    /* background: va; */
     margin: 0 auto;
     min-height: 100vh;
     box-sizing: border-box;
     transition: background-color 0.3s ease;
-    border: 1px solid red;
+    /* border: 1px solid red; */
     padding-bottom: 80px;
 }
 
 /* Light theme */
 .container.light {
-    background-color: #ffffff;
+    background-color: var(--bg-color);
     color: #000000;
 }
 

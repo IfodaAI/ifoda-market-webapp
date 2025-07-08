@@ -52,23 +52,22 @@ const formatPrice = (price) => {
 .card {
     display: flex;
     flex-direction: column;
-    background: linear-gradient(145deg, #ffffff, #f8f9fa);
+    background: var(--card-bg);
     border-radius: 16px;
     overflow: hidden;
-    box-shadow:
-        0 4px 20px rgba(0, 0, 0, 0.08),
-        0 1px 4px rgba(0, 0, 0, 0.04);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     border: 1px solid rgba(64, 172, 60, 0.1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     position: relative;
 }
 
 .card:hover {
     transform: translateY(-6px) scale(1.02);
-    box-shadow:
+    /* box-shadow:
         0 12px 40px rgba(64, 172, 60, 0.15),
         0 4px 12px rgba(0, 0, 0, 0.1);
+    border-color: rgba(64, 172, 60, 0.2); */
     border-color: rgba(64, 172, 60, 0.2);
+    box-shadow: 0 12px 40px rgba(64, 172, 60, 0.15);
 }
 
 .image-container {
@@ -138,11 +137,13 @@ h3 {
     font-weight: 600;
     margin: 0;
     color: #1a1a1a;
+    color: var(--text-color);
     line-height: 1.3;
     overflow: hidden;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
+    line-clamp: 2;
 }
 
 .price {
@@ -150,6 +151,7 @@ h3 {
     color: #40ac3c;
     margin: 0;
     font-size: 16px;
+    color: var(--primary);
     text-shadow: 0 1px 2px rgba(64, 172, 60, 0.1);
 }
 
@@ -213,7 +215,7 @@ h3 {
 }
 
 .add-btn.added {
-    background: linear-gradient(135deg, #c9f2c8, #a4e5a3);
+    background: linear-gradient(135deg, #b8efb7, #92dc91);
     color: #2e7d32;
     cursor: not-allowed;
     box-shadow: none;
