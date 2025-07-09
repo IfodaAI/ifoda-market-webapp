@@ -1,0 +1,18 @@
+stages:
+  - deploy
+
+deploy:
+  image: node:22
+  stage: deploy
+  only:
+    - main
+  before_script:
+    - apt update && apt install -y openssh-client
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    - mkdir -p ~/.ssh
+    - ssh-keyscan -H $SSH_HOST >> ~/.ssh/known_hosts
+  script:
+    - npm install
+    - npm run build
+    - scp -r dist/* $SSH_USER@$SSH_HOST:$DESTINATION_PATH

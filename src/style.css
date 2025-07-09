@@ -29,3 +29,6 @@ body {
   transition: background 0.3s, color 0.3s;
   font-family: "Noto Sans", sans-serif;
 }
+body::-webkit-scrollbar {
+  display: none;
+}
