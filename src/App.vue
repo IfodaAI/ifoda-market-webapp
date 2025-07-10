@@ -1,7 +1,7 @@
 <template>
   <Container :theme="theme">
     <RouterView />
-    <BottomBar />
+    <BottomBar v-if="!$route.path.includes('chat')" />
   </Container>
 </template>
 

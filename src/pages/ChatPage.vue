@@ -1,48 +1,74 @@
 <template>
     <div class="chat-page">
-        <div class="chat-header">💬 Chat</div>
+        <div class="chat-header">
+            <button class="back-btn" @click="goBack">
+                <span class="icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#40ac3c" viewBox="0 0 24 24">
+                        <path
+                            d="M15.54 4.46a1.25 1.25 0 0 1 0 1.77L9.77 12l5.77 5.77a1.25 1.25 0 1 1-1.77 1.77l-6.66-6.66a1.25 1.25 0 0 1 0-1.77l6.66-6.66a1.25 1.25 0 0 1 1.77 0z" />
+                    </svg>
+                </span>
+            </button>
+            <p>💬 Plant Doctor</p>
+        </div>
 
-        <div class="chat-box">
+        <div class="chat-box" ref="chatBox">
             <div v-for="msg in messages" :key="msg.id" class="chat-message" :class="msg.from">
-                <img v-if="msg.image" :src="msg.image" class="chat-image" />
-                <p v-if="msg.text">{{ msg.text }}</p>
+                <div class="message-content">
+                    <img v-if="msg.image" :src="msg.image" class="chat-image" @load="scrollToBottom" />
+                    <p v-if="msg.text">{{ msg.text }}</p>
+                </div>
+                <div class="message-time">{{ formatTime(msg.id) }}</div>
             </div>
         </div>
 
         <div class="chat-input">
             <input type="file" @change="handleImageUpload" accept="image/*" hidden ref="fileInput" />
-            <button class="upload-btn" @click="$refs.fileInput.click()">📎</button>
+            <button class="upload-btn" @click="$refs.fileInput.click()">
+                <CloudUpload />
+            </button>
 
-            <input v-model="newMessage" type="text" placeholder="Xabar yozing..." />
+            <input v-model="newMessage" type="text" placeholder="Type a message..." @keyup.enter="sendMessage" />
 
-            <button @click="sendMessage">📩</button>
+            <button @click="sendMessage" :disabled="!newMessage.trim()">
+                <SendHorizontal />
+            </button>
         </div>
     </div>
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, nextTick } from 'vue'
+import { useRouter } from 'vue-router'
+import '../styles/chat.css'
+import { CloudUpload, SendHorizontal } from 'lucide-vue-next'
+
+const messages = ref([])
+const newMessage = ref('')
+const fileInput = ref()
+const chatBox = ref()
+
+const router = useRouter()
 
 
 
+const goBack = () => {
+    router.back()
+}
 onMounted(() => {
     messages.value = [
         {
             id: Date.now(),
-            text: "👋 Salom! Bizning o‘simlik shifokorimizga xush kelibsiz!\n📸 Iltimos, kasallangan o‘simlikingizning suratini yuboring.\n🧪 Biz uni tahlil qilib, eng mos davo choralarini tavsiya qilamiz!",
+            text: "👋 Hello! Welcome to our plant doctor!\n📸 Please send a photo of your sick plant.\n🧪 We'll analyze it and recommend the best treatment!",
             from: 'bot'
         }
     ]
 })
 
-
-const messages = ref([
-    { id: 1, text: 'Salom!', from: 'other' },
-    { id: 2, text: 'Qandaysiz?', from: 'me' }
-])
-
-const newMessage = ref('')
-const fileInput = ref()
+const formatTime = (timestamp) => {
+    const date = new Date(timestamp)
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+}
 
 const sendMessage = () => {
     if (newMessage.value.trim()) {
@@ -52,6 +78,7 @@ const sendMessage = () => {
             from: 'me'
         })
         newMessage.value = ''
+        scrollToBottom()
     }
 }
 
@@ -65,105 +92,19 @@ const handleImageUpload = (e) => {
                 image: reader.result,
                 from: 'me'
             })
+            scrollToBottom()
         }
         reader.readAsDataURL(file)
     }
+    e.target.value = null // Reset input to allow same file to be selected again
+}
+
+const scrollToBottom = () => {
+    nextTick(() => {
+        chatBox.value.scrollTo({
+            top: chatBox.value.scrollHeight,
+            behavior: 'smooth'
+        })
+    })
 }
 </script>
-
-<style scoped>
-.chat-page {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    background: var(--bg-color);
-    color: var(--text-color);
-    padding-bottom: 64px;
-}
-
-.chat-header {
-    padding: 12px;
-    font-weight: bold;
-    font-size: 18px;
-    text-align: center;
-    background: var(--primary);
-    color: white;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-}
-
-.chat-box {
-    flex: 1;
-    padding: 12px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.chat-message {
-    max-width: 70%;
-    padding: 10px;
-    border-radius: 12px;
-    word-wrap: break-word;
-    background: var(--card-bg);
-}
-
-.chat-message.me {
-    align-self: flex-end;
-    background: #d4f5d4;
-    color: #222;
-}
-
-.chat-message.other {
-    align-self: flex-start;
-    background: #f1f1f1;
-    color: #222;
-}
-
-.chat-message img.chat-image {
-    width: 160px;
-    border-radius: 12px;
-    margin-top: 6px;
-}
-
-.chat-input {
-    display: flex;
-    align-items: center;
-    padding: 10px;
-    /* border-top: 1px solid #ccc; */
-    gap: 8px;
-    background: var(--bg-color);
-    position: fixed;
-    bottom: 8%;
-    width: 100%;
-}
-
-.chat-input input[type="text"] {
-    flex: 1;
-    padding: 10px;
-    border-radius: 10px;
-    border: 1.5px solid var(--primary);
-    font-size: 14px;
-    background: var(--card-bg);
-    color: var(--text-color);
-    outline: none;
-}
-
-.chat-input button {
-    background: var(--primary);
-    color: white;
-    border: none;
-    border-radius: 10px;
-    padding: 8px 12px;
-    font-size: 16px;
-    cursor: pointer;
-}
-
-.upload-btn {
-    background: transparent;
-    color: var(--primary);
-    font-size: 20px;
-}
-</style>
