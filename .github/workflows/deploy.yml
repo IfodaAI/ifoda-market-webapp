@@ -1,18 +1,38 @@
-stages:
-  - deploy
+name: Deploy
 
-deploy:
-  image: node:22
-  stage: deploy
-  only:
-    - main
-  before_script:
-    - apt update && apt install -y openssh-client
-    - mkdir -p ~/.ssh
-    - echo "$SERVER_SSH_KEY" | tr -d '\r' > ~/.ssh/id_rsa
-    - chmod 600 ~/.ssh/id_rsa
-    - ssh-keyscan -H $SERVER_IP >> ~/.ssh/known_hosts
-  script:
-    - npm install
-    - npm run build
-    - scp -r dist/* $SERVER_USER@$SERVER_IP:$DESTINATION_PATH
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build
+
+      - name: Copy files via SCP
+        env:
+          SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SERVER_IP: ${{ secrets.SERVER_IP }}
+          DESTINATION_PATH: ${{ secrets.DESTINATION_PATH }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SERVER_SSH_KEY" | tr -d '\r' > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H $SERVER_IP >> ~/.ssh/known_hosts
+          scp -r dist/* $SERVER_USER@$SERVER_IP:$DESTINATION_PATH
