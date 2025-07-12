@@ -12,7 +12,7 @@ import Container from '@/components/Container.vue'
 import BottomBar from '@/components/BottomBar.vue'
 import FullscreenLoader from './components/FullscreenLoader.vue'
 
-const theme = ref('light')
+const theme = ref('dark')
 const showLoader = ref(true)
 
 
@@ -28,7 +28,7 @@ onMounted(() => {
       WebApp: {
         ready: () => { },
         expand: () => { },
-        colorScheme: 'light',
+        colorScheme: 'dark',
         onEvent: () => { },
       },
     }
@@ -38,7 +38,7 @@ onMounted(() => {
   tg.ready()
   tg.expand()
   tg.requestFullscreen()
-  theme.value = tg.colorScheme || 'light'
+  theme.value = tg.colorScheme || 'dark'
   tg.onEvent('themeChanged', () => {
     theme.value = tg.colorScheme
   })
