@@ -7,28 +7,29 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import Container from '@/components/Container.vue'
 import BottomBar from '@/components/BottomBar.vue'
 import FullscreenLoader from './components/FullscreenLoader.vue'
 
-const theme = ref('dark')
+const theme = ref('light')
 const showLoader = ref(true)
 
-
 onMounted(() => {
+  // 2 soniyalik splash loader
   setTimeout(() => {
     showLoader.value = false
-  }, 2000) // 2 soniya kutadi
+  }, 2000)
 })
 
+// Telegram WebApp bilan sinxronlashtirish
 onMounted(() => {
   if (typeof window.Telegram === 'undefined') {
     window.Telegram = {
       WebApp: {
         ready: () => { },
         expand: () => { },
-        colorScheme: 'dark',
+        colorScheme: 'light',
         onEvent: () => { },
       },
     }
@@ -37,12 +38,23 @@ onMounted(() => {
   const tg = window.Telegram.WebApp
   tg.ready()
   tg.expand()
-  tg.requestFullscreen()
-  theme.value = tg.colorScheme || 'dark'
+  tg.requestFullscreen?.()
+
+  // Theme'ni aniqlab olamiz
+  theme.value = tg.colorScheme || 'light'
+  document.body.classList.toggle('dark-mode', theme.value === 'dark')
+
+  // Event listener: Theme o‘zgarganda body'ga class qo‘shamiz
   tg.onEvent('themeChanged', () => {
     theme.value = tg.colorScheme
+    document.body.classList.toggle('dark-mode', theme.value === 'dark')
   })
-  console.log(`Telegram WebApp initialized with theme: ${theme.value}`);
 
+  console.log(`Telegram WebApp initialized with theme: ${theme.value}`)
+})
+
+// Har ehtimolga qarshi theme o‘zgarsa, body class yangilansin
+watch(theme, (val) => {
+  document.body.classList.toggle('dark-mode', val === 'dark')
 })
 </script>
