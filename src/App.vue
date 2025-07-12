@@ -42,5 +42,7 @@ onMounted(() => {
   tg.onEvent('themeChanged', () => {
     theme.value = tg.colorScheme
   })
+  console.log(`Telegram WebApp initialized with theme: ${theme.value}`);
+
 })
 </script>
