@@ -13,10 +13,9 @@
             <h3>⚙️ Sozlamalar</h3>
             <div class="setting-row">
                 <span>Tema:</span>
-                <button class="theme-btn" @click="toggleTheme">
-                    {{ isDark ? '🌙 Tungi' : '🔆 Yorug‘' }}
-                </button>
+                <span>{{ theme === 'dark' ? '🌙 Tungi' : '🔆 Yorug‘' }}</span>
             </div>
+
         </div>
 
         <!-- Buyurtmalar -->
@@ -45,24 +44,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 
 const userName = 'Iboxim'
 const avatarUrl = 'https://api.dicebear.com/7.x/fun-emoji/svg?seed=Iboxim'
 
-const isDark = ref(false)
+// const isDark = ref(false)
 
-const toggleTheme = () => {
-    isDark.value = !isDark.value
-    localStorage.setItem('theme', isDark.value ? 'dark' : 'light')
-    document.body.classList.toggle('dark-mode', isDark.value)
-}
-
-onMounted(() => {
-    const saved = localStorage.getItem('theme')
-    isDark.value = saved === 'dark'
-    document.body.classList.toggle('dark-mode', isDark.value)
-})
 
 const orders = ref([
     { id: 1, title: 'Pizza Margherita' },

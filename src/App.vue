@@ -37,6 +37,7 @@ onMounted(() => {
   const tg = window.Telegram.WebApp
   tg.ready()
   tg.expand()
+  tg.requestFullscreen()
   theme.value = tg.colorScheme || 'light'
   tg.onEvent('themeChanged', () => {
     theme.value = tg.colorScheme
