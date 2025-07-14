@@ -213,7 +213,10 @@
   }
 
   .chat-input {
-    padding: 25px 12px;
+    padding: 25px 12px 10px 12px;
+  }
+  .chat-input .input-active {
+    padding: 10px 12px;
   }
 
   .chat-input input {

@@ -22,13 +22,16 @@
             </div>
         </div>
 
-        <div class="chat-input">
+        <div class="chat-input" :class="{ 'input-active': inputFocused }">
             <input type="file" @change="handleImageUpload" accept="image/*" hidden ref="fileInput" />
             <button class="upload-btn" @click="$refs.fileInput.click()">
                 <CloudUpload />
             </button>
 
-            <input v-model="newMessage" type="text" placeholder="Type a message..." @keyup.enter="sendMessage" />
+            <input v-model="newMessage" type="text" placeholder="Type a message..." @focus="activateInput"
+                @blur="inputFocused = false" @keyup.enter="sendMessage" />
+
+
 
             <button @click="sendMessage" :disabled="!newMessage.trim()">
                 <SendHorizontal />
@@ -49,6 +52,7 @@ const fileInput = ref()
 const chatBox = ref()
 
 const router = useRouter()
+const inputFocused = ref(false)
 
 
 
@@ -64,6 +68,12 @@ onMounted(() => {
         }
     ]
 })
+
+const activateInput = () => {
+    inputFocused.value = true
+    scrollToBottom()
+}
+
 
 const formatTime = (timestamp) => {
     const date = new Date(timestamp)
