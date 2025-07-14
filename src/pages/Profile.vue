@@ -3,9 +3,9 @@
         <!-- Avatar + Name -->
         <div class="user-box">
             <div class="avatar-wrap">
-                <img class="avatar" :src="avatarUrl" />
+                <img class="avatar" :src="user?.photo_url" />
             </div>
-            <h2>{{ userName }}</h2>
+            <h2>{{ user?.first_name }}</h2>
         </div>
 
         <!-- Sozlamalar -->
@@ -37,20 +37,30 @@
         </div>
 
         <!-- Logout -->
-        <div class="logout">
+        <!-- <div class="logout">
             <button class="logout-btn" @click="logout">🚪 Chiqish</button>
-        </div>
+        </div> -->
     </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 
 const userName = 'Iboxim'
 const avatarUrl = 'https://api.dicebear.com/7.x/fun-emoji/svg?seed=Iboxim'
 
 // const isDark = ref(false)
+const user = ref(null)
 
+onMounted(() => {
+    const tg = window.Telegram?.WebApp
+    if (tg?.initDataUnsafe?.user) {
+        user.value = tg.initDataUnsafe.user
+        console.log('Telegram foydalanuvchi:', user.value)
+    } else {
+        console.warn("Telegram foydalanuvchi topilmadi.")
+    }
+})
 
 const orders = ref([
     { id: 1, title: 'Pizza Margherita' },

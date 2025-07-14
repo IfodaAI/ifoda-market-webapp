@@ -29,7 +29,7 @@ const links = [
     bottom: 0;
     left: 0;
     right: 0;
-    height: 64px;
+    height: 74px;
     background-color: var(--card-bg);
     display: flex;
     justify-content: space-around;
@@ -39,6 +39,7 @@ const links = [
     z-index: 9999;
     transition: background-color 0.3s ease;
     backdrop-filter: blur(10px);
+    padding-bottom: 10px;
 }
 
 .nav-item {
