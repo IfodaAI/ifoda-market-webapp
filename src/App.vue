@@ -8,10 +8,12 @@
 
 <script setup>
 import { ref, watch, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import Container from '@/components/Container.vue'
 import BottomBar from '@/components/BottomBar.vue'
 import FullscreenLoader from './components/FullscreenLoader.vue'
 
+const route = useRoute() // ❗ BU JOY MUHIM
 const theme = ref('light')
 const showLoader = ref(true)
 
@@ -31,6 +33,12 @@ onMounted(() => {
         expand: () => { },
         colorScheme: 'light',
         onEvent: () => { },
+        BackButton: {
+          show: () => { },
+          hide: () => { },
+          onEvent: () => { },
+          offEvent: () => { }
+        }
       },
     }
   }
@@ -38,27 +46,26 @@ onMounted(() => {
   const tg = window.Telegram.WebApp
   tg.ready()
   tg.expand()
-  // tg.requestFullscreen?.()
 
   // Theme'ni aniqlab olamiz
   theme.value = tg.colorScheme || 'light'
   document.body.classList.toggle('dark-mode', theme.value === 'dark')
 
-  // Event listener: Theme o‘zgarganda body'ga class qo‘shamiz
+  // Telegramda theme o‘zgarsa
   tg.onEvent('themeChanged', () => {
     theme.value = tg.colorScheme
     document.body.classList.toggle('dark-mode', theme.value === 'dark')
   })
 
+  // Boshlanishida backButton holatini aniqlaymiz
   handleBackButton(route.path)
-
-  // Path o'zgarganda back button'ni sozlaymiz
-
-
 })
+
+// Path o'zgarganda back button'ni sozlaymiz
 watch(route, (newRoute) => {
   handleBackButton(newRoute.path)
 })
+
 function handleBackButton(path) {
   const tg = window.Telegram.WebApp
 
@@ -69,11 +76,11 @@ function handleBackButton(path) {
     })
   } else {
     tg.BackButton.hide()
-    tg.offEvent('backButtonClicked') // boshqa sahifalarda tozalaymiz
+    tg.offEvent('backButtonClicked')
   }
 }
 
-// Har ehtimolga qarshi theme o‘zgarsa, body class yangilansin
+// Theme kuzatuvchisi: body class doim yangilanadi
 watch(theme, (val) => {
   document.body.classList.toggle('dark-mode', val === 'dark')
 })
