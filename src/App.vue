@@ -53,10 +53,11 @@ onMounted(() => {
   handleBackButton(route.path)
 
   // Path o'zgarganda back button'ni sozlaymiz
-  watch(route, (newRoute) => {
-    handleBackButton(newRoute.path)
-  })
 
+
+})
+watch(route, (newRoute) => {
+  handleBackButton(newRoute.path)
 })
 function handleBackButton(path) {
   const tg = window.Telegram.WebApp
