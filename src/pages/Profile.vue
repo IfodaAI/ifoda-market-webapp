@@ -92,8 +92,6 @@ const logout = () => {
 
 .avatar-wrap {
     display: inline-block;
-    padding: 4px;
-    background: linear-gradient(135deg, var(--primary), #2d7a2a);
     border-radius: 50%;
 }
 
