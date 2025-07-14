@@ -23,7 +23,7 @@ defineProps({
     box-sizing: border-box;
     transition: background-color 0.3s ease;
     /* border: 1px solid red; */
-    padding: 20px 0;
+    padding: 10px 0;
 }
 
 /* Light theme */

@@ -134,7 +134,7 @@
   max-width: 500px;
   width: 100%;
   display: flex;
-  padding: 20px 16px 35px 16px;
+  padding: 12px 16px;
   background: var(--card-bg);
   align-items: center;
   gap: 8px;
@@ -213,7 +213,7 @@
   }
 
   .chat-input {
-    padding: 8px 12px;
+    padding: 15px 12px;
   }
 
   .chat-input input {
