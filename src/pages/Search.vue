@@ -19,9 +19,22 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import ProductCard from '@/components/ProductCard.vue'
 import { useCartStore } from '../store/cartStore'
+
+const user = ref(null)
+
+onMounted(() => {
+    const tg = window.Telegram?.WebApp
+    if (tg?.initDataUnsafe?.user) {
+        user.value = tg.initDataUnsafe.user
+        console.log('Telegram foydalanuvchi:', user.value)
+    } else {
+        console.warn("Telegram foydalanuvchi topilmadi.")
+    }
+})
+
 
 const products = ref([
     {
