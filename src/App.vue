@@ -50,8 +50,27 @@ onMounted(() => {
     document.body.classList.toggle('dark-mode', theme.value === 'dark')
   })
 
-  console.log(`Telegram WebApp initialized with theme: ${theme.value}`)
+  handleBackButton(route.path)
+
+  // Path o'zgarganda back button'ni sozlaymiz
+  watch(route, (newRoute) => {
+    handleBackButton(newRoute.path)
+  })
+
 })
+function handleBackButton(path) {
+  const tg = window.Telegram.WebApp
+
+  if (path === '/chat') {
+    tg.BackButton.show()
+    tg.onEvent('backButtonClicked', () => {
+      window.history.back()
+    })
+  } else {
+    tg.BackButton.hide()
+    tg.offEvent('backButtonClicked') // boshqa sahifalarda tozalaymiz
+  }
+}
 
 // Har ehtimolga qarshi theme o‘zgarsa, body class yangilansin
 watch(theme, (val) => {
