@@ -121,8 +121,8 @@
 .chat-image {
   max-width: 100%;
   width: 100%;
-  height: 96px;
-  object-fit: cover;
+  height: 126px;
+  /* object-fit: cover; */
   border-radius: 12px;
   margin-bottom: 4px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);

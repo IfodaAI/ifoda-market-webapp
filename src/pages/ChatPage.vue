@@ -1,14 +1,6 @@
 <template>
     <div class="chat-page">
         <div class="chat-header">
-            <button class="back-btn" @click="goBack">
-                <span class="icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#40ac3c" viewBox="0 0 24 24">
-                        <path
-                            d="M15.54 4.46a1.25 1.25 0 0 1 0 1.77L9.77 12l5.77 5.77a1.25 1.25 0 1 1-1.77 1.77l-6.66-6.66a1.25 1.25 0 0 1 0-1.77l6.66-6.66a1.25 1.25 0 0 1 1.77 0z" />
-                    </svg>
-                </span>
-            </button>
             <p>💬 Plant Doctor</p>
         </div>
 
@@ -60,6 +52,18 @@ const goBack = () => {
     router.back()
 }
 onMounted(() => {
+    const tg = window.Telegram.WebApp
+
+    // Telegram WebApp ishga tushganiga ishonch hosil qilamiz
+    tg.ready()
+
+    // BackButton’ni ko‘rsatamiz
+    tg.BackButton.show()
+
+    // Back bosilganda avvalgi sahifaga qaytamiz
+    tg.onEvent('backButtonClicked', () => {
+        router.back()
+    })
     messages.value = [
         {
             id: Date.now(),
