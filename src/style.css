@@ -5,6 +5,8 @@
   --primary: #40ac3c;
   --danger: #e53935;
   --bg-gradient: linear-gradient(145deg, #fdfdfd, #e8fce6);
+  --skeleton-base: #f0f0f0;
+  --skeleton-highlight: #e0e0e0;
   /* --bg-gradient: linear-gradient(145deg, #ffffff, #e8fce6); */
 }
 * {
@@ -20,6 +22,8 @@ body.dark-mode {
   --card-bg: #1e1e1e;
   --primary: #58c755;
   --danger: #ff6f61;
+  --skeleton-base: #2a2a2a;
+  --skeleton-highlight: #3c3c3c;
 }
 
 body {

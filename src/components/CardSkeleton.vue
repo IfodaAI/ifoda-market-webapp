@@ -32,12 +32,24 @@ export default {
     overflow: hidden;
 }
 
+/* Skeleton gradient with dynamic variables */
+.skeleton-image,
+.skeleton-title,
+.skeleton-price,
+.skeleton-button {
+    background: linear-gradient(90deg,
+            var(--skeleton-base) 25%,
+            var(--skeleton-highlight) 50%,
+            var(--skeleton-base) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 4px;
+}
+
 .skeleton-image {
     width: 100%;
     height: 140px;
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
+    border-radius: 0;
 }
 
 .info {
@@ -49,30 +61,20 @@ export default {
 
 .skeleton-title {
     height: 40px;
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
-    border-radius: 4px;
 }
 
 .skeleton-price {
     height: 20px;
     width: 80px;
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
-    border-radius: 4px;
 }
 
 .skeleton-button {
     height: 40px;
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
     border-radius: 12px;
     margin-top: auto;
 }
 
+/* Animation */
 @keyframes shimmer {
     0% {
         background-position: 200% 0;
@@ -83,7 +85,7 @@ export default {
     }
 }
 
-/* Responsive adjustments */
+/* Responsive */
 @media (max-width: 768px) {
     .skeleton-image {
         height: 120px;
