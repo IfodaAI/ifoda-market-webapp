@@ -51,7 +51,7 @@ const loadProducts = async () => {
     await new Promise((resolve) => setTimeout(resolve, 1000))
 
     try {
-        const res = await axios.get('http://94.141.76.204:8088/pills_api/', {
+        const res = await axios.get('https://ifoda-shop.uz/pills_api/', {
             params: {
                 isPaginated: true,
                 page: page.value,

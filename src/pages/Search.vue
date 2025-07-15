@@ -75,7 +75,7 @@ const fetchProducts = async () => {
     if (isLoading.value || !hasMore.value || !query.value.trim()) return
     isLoading.value = true
     try {
-        const res = await axios.get('http://94.141.76.204:8088/pills_api/', {
+        const res = await axios.get('https://ifoda-shop.uz/pills_api/', {
             params: {
                 isPaginated: true,
                 page: page.value,

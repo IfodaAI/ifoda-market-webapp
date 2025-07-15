@@ -52,18 +52,6 @@ const goBack = () => {
     router.back()
 }
 onMounted(() => {
-    const tg = window.Telegram.WebApp
-
-    // Telegram WebApp ishga tushganiga ishonch hosil qilamiz
-    // tg.ready()
-
-    // // BackButton’ni ko‘rsatamiz
-    // tg.BackButton.show()
-
-    // // Back bosilganda avvalgi sahifaga qaytamiz
-    // tg.onEvent('backButtonClicked', () => {
-    //     router.back()
-    // })
     messages.value = [
         {
             id: Date.now(),
