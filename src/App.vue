@@ -2,7 +2,7 @@
   <FullscreenLoader v-if="showLoader" />
   <Container v-else :theme="theme">
     <RouterView />
-    <BottomBar v-if="!$route.path.includes('chat')" />
+    <BottomBar />
   </Container>
 </template>
 

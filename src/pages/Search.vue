@@ -7,11 +7,11 @@
         </div>
 
         <div class="product-grid">
-            <ProductCard v-for="product in filteredProducts" :key="product.id" :product="product"
-                @add-to-cart="addToCart" />
+            <ProductCard v-for="product in products" :key="product.id" :product="product" @add-to-cart="addToCart" />
+            <CardSkeleton v-if="isLoading" v-for="n in 3" :key="'skeleton-' + n" />
         </div>
 
-        <div v-if="filteredProducts.length === 0" class="no-results">
+        <div v-if="!isLoading && products.length === 0" class="no-results">
             <img src="https://cdn-icons-png.flaticon.com/512/2748/2748558.png" alt="No results" class="no-result-img" />
             <p>Hech narsa topilmadi... 🤔</p>
         </div>
@@ -19,49 +19,85 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, watch, onMounted, onUnmounted } from 'vue'
+import axios from 'axios'
 import ProductCard from '@/components/ProductCard.vue'
+import CardSkeleton from '@/components/CardSkeleton.vue'
 import { useCartStore } from '../store/cartStore'
 
-
-
-
-const products = ref([
-    {
-        id: 1,
-        title: 'Quloqchin',
-        price: 129000,
-        image: 'https://picsum.photos/seed/1/200/300',
-    },
-    {
-        id: 2,
-        title: 'Power Bank',
-        price: 89000,
-        image: 'https://picsum.photos/seed/2/200/300',
-    },
-    {
-        id: 3,
-        title: 'USB Kabel',
-        price: 29000,
-        image: 'https://picsum.photos/seed/3/200/300',
-    },
-    {
-        id: 4,
-        title: 'Smart Soat',
-        price: 299000,
-        image: 'https://picsum.photos/seed/4/200/300',
-    },
-])
-
 const query = ref('')
-
-const filteredProducts = computed(() =>
-    products.value.filter((product) =>
-        product.title.toLowerCase().includes(query.value.toLowerCase())
-    )
-)
-
+const products = ref([])
+const isLoading = ref(false)
+const page = ref(1)
+const hasMore = ref(true)
 const cart = useCartStore()
+let debounceTimeout
+
+// Qidiruv so‘zini kuzatish
+watch(query, (newQuery) => {
+    clearTimeout(debounceTimeout)
+    debounceTimeout = setTimeout(() => {
+        resetSearch()
+        if (newQuery.trim().length > 0) {
+            fetchProducts()
+        }
+    }, 500)
+})
+
+// Scroll event infinite scroll uchun
+const handleScroll = () => {
+    const scrollTop = window.scrollY
+    const windowHeight = window.innerHeight
+    const docHeight = document.documentElement.scrollHeight
+
+    if (scrollTop + windowHeight >= docHeight - 100) {
+        fetchProducts()
+    }
+}
+
+onMounted(() => {
+    window.addEventListener('scroll', handleScroll)
+})
+
+onUnmounted(() => {
+    window.removeEventListener('scroll', handleScroll)
+})
+
+// Qayta qidiruv bo‘lsa reset qilamiz
+const resetSearch = () => {
+    page.value = 1
+    hasMore.value = true
+    products.value = []
+}
+
+// Mahsulotlarni olish
+const fetchProducts = async () => {
+    if (isLoading.value || !hasMore.value || !query.value.trim()) return
+    isLoading.value = true
+    try {
+        const res = await axios.get('http://94.141.76.204:8088/pills_api/', {
+            params: {
+                isPaginated: true,
+                page: page.value,
+                name__icontains: query.value,
+            },
+        })
+        const results = res.data.results || []
+        if (results.length > 0) {
+            products.value.push(...results)
+            page.value++
+            if (!res.data.next) {
+                hasMore.value = false
+            }
+        } else {
+            hasMore.value = false
+        }
+    } catch (err) {
+        console.error('❌ API xatoligi:', err)
+    } finally {
+        isLoading.value = false
+    }
+}
 
 const addToCart = (product) => {
     cart.addToCart(product)

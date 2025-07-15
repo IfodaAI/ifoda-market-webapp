@@ -1,21 +1,22 @@
 <template>
     <div class="card">
-        <router-link :to="`/product/${product.id}`" class="image-container">
-            <img :src="product.image" :alt="product.title" class="product-img" />
+        <router-link :to="`/product/${id}`" class="image-container">
+            <img :src="image" v-if="image" :alt="name" class="product-img" />
+            <img v-else src="@/assets/no-image.png" alt="No image available" class="product-img" />
             <div class="overlay">
                 <div class="quick-view">👁️</div>
             </div>
         </router-link>
+
         <div class="info">
-            <h3>{{ product.title }}</h3>
-            <p class="price">{{ formatPrice(product.price) }}</p>
+            <h3>{{ name }}</h3>
+            <p class="price">{{ formatPrice(price) }}</p>
             <button @click="addToCart" :disabled="isAdded" :class="['add-btn', { added: isAdded }]">
                 <span class="btn-icon">🛒</span>
                 <span class="btn-text">
                     {{ isAdded ? 'Qo‘shilgan ✅' : 'Savatga' }}
                 </span>
             </button>
-
         </div>
     </div>
 </template>
@@ -24,26 +25,35 @@
 import { computed } from 'vue'
 import { useCartStore } from '../store/cartStore'
 
-
+// Propsdan productni qabul qilamiz
 const props = defineProps({
-    product: Object
+    product: {
+        type: Object,
+        required: true,
+    },
 })
 
+// Ma'lumotlarni destructure qilib olamiz
+const { id, name, image, price } = props.product
+
+// Cart store bilan ishlaymiz
 const cart = useCartStore()
 
-// ✅ isAdded computed orqali tekshiramiz
+// Product allaqachon savatda bormi yo‘qmi
 const isAdded = computed(() =>
-    cart.items.some((item) => item.id === props.product.id)
+    cart.items.some((item) => item.id === id)
 )
 
-// ✅ addToCart endi props.product dan foydalansak bo'ladi
+// Qo‘shish funksiyasi
 const addToCart = () => {
     if (!isAdded.value) {
         cart.addToCart(props.product)
     }
 }
+
+// Narxni formatlash
 const formatPrice = (price) => {
-    return price.toLocaleString('uz-UZ') + ' so‘m'
+    return price ? price.toLocaleString('uz-UZ') + ' so‘m' : 'Narx belgilanmagan'
 }
 </script>
 
