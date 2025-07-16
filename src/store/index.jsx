@@ -7,7 +7,7 @@ import Profile from "../pages/Profile.vue";
 
 const routes = [
   { path: "/", component: Home },
-  { path: "/search", component: Search },
+  // { path: "/search", component: Search },
   { path: "/cart", component: Cart },
   { path: "/profile", component: Profile },
 ];

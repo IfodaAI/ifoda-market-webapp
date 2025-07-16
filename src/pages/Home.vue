@@ -1,21 +1,33 @@
 <template>
     <div class="home">
         <div class="header">
-            <h1>🛍️ Mahsulotlar</h1>
-            <p class="subtitle">Eng sifatli mahsulotlarni tanlang</p>
+            <h1>{{ showSearchResults ? '🔍 Qidiruv natijalari' : '🛍️ Mahsulotlar' }}</h1>
+            <p class="subtitle">{{ showSearchResults ? "Qidiruv bo\'yicha topilgan mahsulotlar" :
+                "Eng sifatli mahsulotlarni tanlang" }}</p>
+
+            <div class="input-wrapper">
+                <input v-model="query" type="text" placeholder="Mahsulot qidirish..." class="search-input"
+                    @input="handleSearchInput" />
+            </div>
         </div>
 
         <div class="product-grid">
-            <ProductCard v-for="product in products" :key="product.id" :product="product" @add-to-cart="addToCart" />
+            <ProductCard v-for="product in displayedProducts" :key="product.id" :product="product"
+                @add-to-cart="addToCart" />
 
-            <!-- Yuklanayotgan paytida Skeletonlar -->
             <CardSkeleton v-if="isLoading" v-for="n in 3" :key="'skeleton-' + n" />
 
-            <!-- Ma'lumot qolmagan holatda -->
-            <div v-if="!hasMore && !isLoading" class="end-msg">
+            <div v-if="showNoResultsMessage" class="no-results">
+                <img src="https://cdn-icons-png.flaticon.com/512/2748/2748558.png" alt="No results"
+                    class="no-result-img" />
+                <p>Hech narsa topilmadi... 🤔</p>
+            </div>
+
+            <div v-if="showEndOfCatalogMessage" class="end-msg">
                 🔚 Boshqa mahsulotlar qolmadi
             </div>
         </div>
+
         <div v-if="isLoading" class="loading-spinner">
             <span class="dot"></span>
             <span class="dot"></span>
@@ -25,48 +37,112 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, watch, onMounted, onUnmounted, computed } from 'vue'
+import axios from 'axios'
 import ProductCard from '@/components/ProductCard.vue'
 import CardSkeleton from '@/components/CardSkeleton.vue'
-import axios from 'axios'
 import { useCartStore } from '../store/cartStore'
+import '../styles/home.css'
 
+const query = ref('')
 const products = ref([])
+const homeProducts = ref([])
 const isLoading = ref(false)
 const page = ref(1)
+const searchPage = ref(1)
 const hasMore = ref(true)
-
+const hasMoreSearch = ref(true)
 const cart = useCartStore()
+let debounceTimeout
 
-const addToCart = (product) => {
-    cart.addToCart(product)
+// Computed properties
+const displayedProducts = computed(() => {
+    return hasSearchQuery.value ? products.value : homeProducts.value
+})
+
+const hasSearchQuery = computed(() => {
+    return query.value.trim().length > 0
+})
+
+const showSearchResults = computed(() => {
+    return hasSearchQuery.value
+})
+
+const showNoResultsMessage = computed(() => {
+    return hasSearchQuery.value && !isLoading.value && products.value.length === 0
+})
+
+const showEndOfCatalogMessage = computed(() => {
+    return !hasSearchQuery.value && !hasMore.value && !isLoading.value && homeProducts.value.length > 0
+})
+
+// Methods
+const handleSearchInput = () => {
+    clearTimeout(debounceTimeout)
+    debounceTimeout = setTimeout(() => {
+        if (hasSearchQuery.value) {
+            resetSearch()
+            fetchProducts(true)
+        } else {
+            products.value = []
+        }
+    }, 500)
 }
 
-const loadProducts = async () => {
-    if (isLoading.value || !hasMore.value) return
+const resetSearch = () => {
+    searchPage.value = 1
+    hasMoreSearch.value = true
+    products.value = []
+}
 
+const fetchProducts = async (isSearch = false) => {
+    // Oldingi so'rov tugamaguncha yoki boshqa sahifa qolmagan bo'lsa to'xtatamiz
+    if (isLoading.value || (isSearch ? !hasMoreSearch.value : !hasMore.value)) return
+
+    // Loading holatini yoqamiz
     isLoading.value = true
 
-    // 🔄 Sekinroq loading animatsiya uchun delay
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    // Minimal loading vaqtini ta'minlash uchun 500ms kutamiz
+    const minLoadingTime = 500
+    const startTime = Date.now()
 
     try {
-        const res = await axios.get('https://ifoda-shop.uz/pills_api/', {
-            params: {
-                isPaginated: true,
-                page: page.value,
-            },
-        })
+        const currentPage = isSearch ? searchPage.value : page.value
+        const params = {
+            isPaginated: true,
+            page: currentPage,
+        }
 
-        const newItems = res.data.results
-        if (newItems.length > 0) {
-            products.value.push(...newItems)
-            page.value++
-            if (!res.data.next) {
-                hasMore.value = false
+        if (isSearch) {
+            params.name__icontains = query.value.trim()
+        }
+
+        // API so'rovini yuboramiz
+        const res = await axios.get('https://ifoda-shop.uz/pills_api/', { params })
+        const results = res.data.results || []
+
+        // Minimal loading vaqtini ta'minlash
+        const elapsedTime = Date.now() - startTime
+        if (elapsedTime < minLoadingTime) {
+            await new Promise(resolve => setTimeout(resolve, minLoadingTime - elapsedTime))
+        }
+
+        if (results.length > 0) {
+            if (isSearch) {
+                products.value.push(...results)
+                searchPage.value++
+                hasMoreSearch.value = !!res.data.next
+            } else {
+                homeProducts.value.push(...results)
+                page.value++
+                hasMore.value = !!res.data.next
             }
         } else {
-            hasMore.value = false
+            if (isSearch) {
+                hasMoreSearch.value = false
+            } else {
+                hasMore.value = false
+            }
         }
     } catch (err) {
         console.error('❌ API xatoligi:', err)
@@ -76,103 +152,39 @@ const loadProducts = async () => {
 }
 
 
-
-
-const handleScroll = () => {
-    const scrollTop = window.scrollY
-    const windowHeight = window.innerHeight
-    const docHeight = document.documentElement.scrollHeight
-
-    if (scrollTop + windowHeight >= docHeight - 100) {
-        loadProducts()
-    }
+const addToCart = (product) => {
+    cart.addToCart(product)
 }
 
+let isScrolling = false
+const handleScroll = () => {
+    if (isScrolling) return
+    isScrolling = true
+
+    requestAnimationFrame(() => {
+        const scrollTop = window.scrollY
+        const windowHeight = window.innerHeight
+        const docHeight = document.documentElement.scrollHeight
+
+        if (scrollTop + windowHeight >= docHeight - 100) {
+            if (query.value.trim().length > 0) {
+                fetchProducts(true)
+            } else {
+                fetchProducts(false)
+            }
+        }
+
+        isScrolling = false
+    })
+}
+
+// Lifecycle hooks
 onMounted(() => {
-    loadProducts()
     window.addEventListener('scroll', handleScroll)
+    fetchProducts(false) // Load initial home products
 })
 
 onUnmounted(() => {
     window.removeEventListener('scroll', handleScroll)
 })
 </script>
-
-<style scoped>
-.home {
-    padding: 16px;
-    padding-bottom: 80px;
-    min-height: 100vh;
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-.header {
-    text-align: center;
-    margin-bottom: 24px;
-}
-
-.header h1 {
-    font-size: 28px;
-    font-weight: 700;
-    margin: 0 0 8px;
-    color: var(--accent);
-}
-
-.subtitle {
-    font-size: 16px;
-    color: var(--muted);
-    margin: 0;
-    font-weight: 400;
-}
-
-.product-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 14px;
-}
-
-.end-msg {
-    text-align: center;
-    margin-top: 20px;
-    color: var(--muted);
-    font-size: 14px;
-}
-
-.loading-spinner {
-    text-align: center;
-    margin: 16px 0 32px;
-}
-
-.loading-spinner .dot {
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    margin: 0 4px;
-    background-color: var(--accent);
-    border-radius: 50%;
-    animation: bounce 1.2s infinite ease-in-out;
-}
-
-.loading-spinner .dot:nth-child(2) {
-    animation-delay: 0.2s;
-}
-
-.loading-spinner .dot:nth-child(3) {
-    animation-delay: 0.4s;
-}
-
-@keyframes bounce {
-
-    0%,
-    80%,
-    100% {
-        transform: scale(0);
-    }
-
-    40% {
-        transform: scale(1);
-    }
-}
-</style>

@@ -15,7 +15,7 @@ const route = useRoute()
 
 const links = [
     { path: '/', label: 'Home', icon: '🏠' },
-    { path: '/search', label: 'Qidiruv', icon: '🔍' },
+    // { path: '/search', label: 'Qidiruv', icon: '🔍' },
     { path: '/chat', label: 'Chat', icon: '💬' },
     { path: '/cart', label: 'Savat', icon: '🛒' },
     { path: '/profile', label: 'Profil', icon: '👤' },
