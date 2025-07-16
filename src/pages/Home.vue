@@ -33,6 +33,9 @@
             <span class="dot"></span>
             <span class="dot"></span>
         </div>
+        <button v-if="showScrollTopBtn" @click="scrollToTop" class="scroll-top-btn">
+            <CircleChevronUp />
+        </button>
     </div>
 </template>
 
@@ -43,6 +46,7 @@ import ProductCard from '@/components/ProductCard.vue'
 import CardSkeleton from '@/components/CardSkeleton.vue'
 import { useCartStore } from '../store/cartStore'
 import '../styles/home.css'
+import { CircleChevronUp } from 'lucide-vue-next'
 
 const query = ref('')
 const products = ref([])
@@ -157,6 +161,15 @@ const addToCart = (product) => {
 }
 
 let isScrolling = false
+const showScrollTopBtn = ref(false)
+
+const scrollToTop = () => {
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth',
+    })
+}
+
 const handleScroll = () => {
     if (isScrolling) return
     isScrolling = true
@@ -165,6 +178,9 @@ const handleScroll = () => {
         const scrollTop = window.scrollY
         const windowHeight = window.innerHeight
         const docHeight = document.documentElement.scrollHeight
+
+        // ⬆️ Tugmani ko‘rsatish shartlari
+        showScrollTopBtn.value = scrollTop > 300
 
         if (scrollTop + windowHeight >= docHeight - 100) {
             if (query.value.trim().length > 0) {
@@ -177,6 +193,8 @@ const handleScroll = () => {
         isScrolling = false
     })
 }
+
+
 
 // Lifecycle hooks
 onMounted(() => {
