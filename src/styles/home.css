@@ -1,14 +1,25 @@
 .home {
   padding: 16px;
-  padding-bottom: 80px;
+  padding-bottom: 40px;
   min-height: 100vh;
   background-color: var(--bg-color);
   color: var(--text-color);
   transition: background-color 0.3s ease, color 0.3s ease;
+  position: relative;
 }
 
 .header {
-  margin-bottom: 24px;
+  max-width: 500px;
+  width: 100%;
+  position: fixed;
+  left: 0;
+  padding: 16px;
+
+  z-index: 999;
+  /* border: 1px solid red; */
+  background: var(--bg-color);
+  top: 0;
+  /* left: ; */
 }
 
 .header h1 {
@@ -52,6 +63,9 @@
 }
 
 .product-grid {
+  box-shadow: 0 4px 12px rgba(64, 172, 60, 0.12);
+
+  padding-top: 170px;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 14px;
