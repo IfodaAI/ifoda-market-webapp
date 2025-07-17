@@ -289,6 +289,8 @@ const goBack = () => {
 .form-group input:focus {
     border-color: var(--primary);
     outline: none;
+    box-shadow: 0 0 0 3px rgba(64, 172, 60, 0.15);
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .input-error {
