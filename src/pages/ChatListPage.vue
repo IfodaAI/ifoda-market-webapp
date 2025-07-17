@@ -78,7 +78,7 @@ const startNewChat = async () => {
     try {
         const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user
         const response = await axios.post('https://ifoda-shop.uz/order_api/', {
-            user_id: tgUser?.id || 'anonymous',
+            user: tgUser?.id || 'anonymous',
             user_full_name: `${tgUser?.first_name || ''} ${tgUser?.last_name || ''}`.trim() || 'Foydalanuvchi',
             user_name: tgUser?.username || ''
         })
