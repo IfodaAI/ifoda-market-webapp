@@ -17,7 +17,7 @@ defineProps({
 .container {
     max-width: 500px;
     width: 100%;
-    /* background: va; */
+    position: relative;
     margin: 0 auto;
     min-height: 100vh;
     box-sizing: border-box;

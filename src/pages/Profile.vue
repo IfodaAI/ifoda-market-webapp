@@ -98,7 +98,7 @@ onMounted(() => {
 const recentOrders = computed(() => {
     return [...orders.value]
         .sort((a, b) => new Date(b.order_date) - new Date(a.order_date))
-        .slice(0, 5)
+        .slice(0, 2)
 })
 
 // Buyurtmalarni yuklash
