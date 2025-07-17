@@ -10,38 +10,48 @@
                 </span>
                 <span>Ortga</span>
             </button>
-
         </div>
 
-        <img :src="product.image" alt="Product Image" class="product-image" />
+        <div v-if="loading" class="loading">Yuklanmoqda...</div>
+        <div v-else-if="error" class="error">{{ error }}</div>
+        <div v-else>
+            <img :src="product.image" v-if="product.image" alt="Product Image" class="product-image" />
+            <img src="@/assets/no-image.png" v-else alt="Product Image" class="product-image" />
 
-        <div class="info-box">
-            <h1 class="title">{{ product.title }}</h1>
-            <p class="price">{{ formatPrice(product.price) }}</p>
-            <p class="description">{{ product.description }}</p>
 
-            <button class="add-btn" @click="addToCart(product)">
-                🛒 Savatga qo‘shish
-            </button>
+            <div class="info-box">
+                <h1 class="title">{{ product.name }}</h1>
+                <p class="price">{{ formatPrice(product.price) }}</p>
+                <p class="description">{{ product.description }}</p>
+
+                <button :class="['add-btn', { added: isInCart }]" @click="addToCart(product)" :disabled="isInCart">
+                    {{ isInCart ? '✅ Savatga qo\'shilgan' : '🛒 Savatga qo\'shish' }}
+                </button>
+            </div>
         </div>
     </div>
 </template>
->
 
 <script setup>
 import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import axios from 'axios'
 import { useCartStore } from '../store/cartStore'
-// import { useCartStore } from '@/stores/cartStore'
-
-
 
 const route = useRoute()
-const cart = useCartStore()
-
-const product = ref({})
-
 const router = useRouter()
+const cart = useCartStore()
+const isInCart = ref(false)
+
+const product = ref({
+    id: '',
+    name: '',
+    description: '',
+    price: 0,
+    image: null
+})
+const loading = ref(false)
+const error = ref(null)
 
 const goBack = () => {
     router.back()
@@ -49,17 +59,45 @@ const goBack = () => {
 
 const fetchProduct = async () => {
     const id = route.params.id
-    product.value = {
-        id,
-        title: 'Namuna Mahsulot',
-        price: 119000,
-        image: 'https://picsum.photos/seed/picsum/400/300',
-        description:
-            'Bu mahsulot zamonaviy, bardoshli va sizning ehtiyojlaringiz uchun ajoyib tanlov! Juda yengil, foydalanuvchiga qulay va ekologik toza materiallardan tayyorlangan.'
+    loading.value = true
+    error.value = null
+
+    try {
+        const response = await axios.get(`https://ifoda-shop.uz/pills_api/${id}/`)
+        product.value = {
+            id: response.data.id,
+            name: response.data.name,
+            description: response.data.description,
+            price: response.data.price,
+            image: response.data.image
+        }
+        checkCartStatus()
+    } catch (err) {
+        error.value = 'Mahsulot yuklanmadi. Iltimos, keyinroq urunib ko\'ring.'
+        console.error('API error:', err)
+    } finally {
+        loading.value = false
+    }
+}
+const checkCartStatus = () => {
+    try {
+        const cartData = localStorage.getItem('cart')
+        if (cartData) {
+            const cartItems = JSON.parse(cartData)
+            isInCart.value = cartItems.some(item => item.id === product.value.id)
+        } else {
+            isInCart.value = false
+        }
+    } catch (e) {
+        console.error('Savatni tekshirishda xato:', e)
+        isInCart.value = false
     }
 }
 
 onMounted(fetchProduct)
+onMounted(() => {
+    const item = localStorage.getItem('cart');
+})
 
 const addToCart = (item) => {
     cart.addToCart(item)
@@ -67,8 +105,8 @@ const addToCart = (item) => {
 
 const formatPrice = (price) => {
     return typeof price === 'number'
-        ? price.toLocaleString('uz-UZ') + ' so‘m'
-        : 'Nomaʼlum narx'
+        ? price.toLocaleString('uz-UZ') + ' so\'m'
+        : 'Noma\'lum narx'
 }
 </script>
 
@@ -86,6 +124,8 @@ const formatPrice = (price) => {
 
 .product-image {
     width: 100%;
+    height: auto;
+    max-height: 400px;
     border-radius: 16px;
     object-fit: cover;
     box-shadow: 0 6px 20px rgba(64, 172, 60, 0.2);
@@ -131,6 +171,13 @@ const formatPrice = (price) => {
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
+}
+
+.add-btn.added {
+    background: linear-gradient(135deg, #b8efb7, #92dc91);
+    color: #2e7d32;
+    cursor: not-allowed;
+    box-shadow: none;
 }
 
 .add-btn:hover {
