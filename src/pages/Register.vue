@@ -225,7 +225,7 @@ const goBack = () => {
 .register-page {
     padding: 16px;
     min-height: 100vh;
-    background: var(--bg-gradient);
+    background: var(--bg-color);
     color: var(--text-color);
 }
 
