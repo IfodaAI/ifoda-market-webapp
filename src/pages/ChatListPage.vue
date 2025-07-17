@@ -75,10 +75,11 @@ const fetchChats = async () => {
 }
 
 const startNewChat = async () => {
+    const userID = localStorage.getItem('telegram_user_id')
     try {
         const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user
         const response = await axios.post('https://ifoda-shop.uz/order_api/', {
-            user: tgUser?.id || 'anonymous',
+            user: userID,
             user_full_name: `${tgUser?.first_name || ''} ${tgUser?.last_name || ''}`.trim() || 'Foydalanuvchi',
             user_name: tgUser?.username || ''
         })
