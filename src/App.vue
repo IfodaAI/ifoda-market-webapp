@@ -86,7 +86,7 @@ const checkUserRegistration = async (telegramId) => {
   }
 
   try {
-    const response = await axios.get(`https://ifoda-shop.uz/telegramuser_api/get-telegram-id/${telegramId}/`)
+    const response = await axios.get(`https://ifoda-shop.uz/telegramuser_api/get-telegram-id/${tg.initDataUnsafe?.user?.id}/`)
 
     if (response.data.error && response.data.error.includes('does not exist')) {
       router.push('/register')
