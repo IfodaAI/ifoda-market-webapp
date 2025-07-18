@@ -113,7 +113,7 @@ const fetchOrders = async (userId) => {
             {
                 params: {
                     user_id: userId,
-                    status: 'completed'
+                    status: 'COMPLETED'
                 }
             }
         )
