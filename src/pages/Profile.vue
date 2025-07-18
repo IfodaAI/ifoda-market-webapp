@@ -67,7 +67,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 import { getDeliveryMethod, getPaymentMethod, getStatusClass, getStatusText } from '../utility/status'
-import { formatDate, formatPrice } from '../utility/formatter'
+import { formatDate, formatPhoneNumber, formatPrice } from '../utility/formatter'
 
 const router = useRouter()
 
@@ -107,7 +107,7 @@ const fetchOrders = async (userId) => {
     error.value = null
 
     try {
-        const response = await axios.get(`https://ifoda-shop.uz/order_api/my_orders/?user_id=${userId || '1330892088'}`)
+        const response = await axios.get(`https://ifoda-shop.uz/order_api/my_orders/?user_id=${userId}`)
         orders.value = response.data
     } catch (err) {
         error.value = "Buyurtmalarni yuklashda xatolik yuz berdi"
@@ -116,8 +116,6 @@ const fetchOrders = async (userId) => {
         loadingOrders.value = false
     }
 }
-
-
 
 
 </script>

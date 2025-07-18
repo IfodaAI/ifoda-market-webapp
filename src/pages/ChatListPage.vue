@@ -176,8 +176,7 @@ onMounted(fetchChats)
 .new-chat-btn {
     position: sticky;
     bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
+
     background: var(--primary);
     color: white;
     border: none;
