@@ -50,9 +50,9 @@ onMounted(async () => {
       },
     }
   }
-  await checkUserRegistration(localUser)
 
   const tg = window.Telegram.WebApp
+  await checkUserRegistration(localUser, tg.initDataUnsafe.user.id)
   tg.ready()
   tg.expand()
 
@@ -79,14 +79,13 @@ onMounted(async () => {
 })
 
 // Foydalanuvchi registratsiyadan o'tganligini tekshirish
-const checkUserRegistration = async (telegramId) => {
+const checkUserRegistration = async (telegramId, tgId) => {
   if (!telegramId) {
     router.push('/register')
     return
   }
-
   try {
-    const response = await axios.get(`https://ifoda-shop.uz/telegramuser_api/get-telegram-id/${tg.initDataUnsafe?.user?.id}/`)
+    const response = await axios.get(`https://ifoda-shop.uz/telegramuser_api/get-telegram-id/${tgId}/`)
 
     if (response.data.error && response.data.error.includes('does not exist')) {
       router.push('/register')
