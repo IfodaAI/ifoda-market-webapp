@@ -19,9 +19,13 @@ const router = useRouter()
 const theme = ref('light')
 const showLoader = ref(true)
 
-// Telegram WebApp bilan sinxronlashtirish
+
+const localUser = localStorage.getItem('telegram_user_id')
+
 onMounted(async () => {
-  // Agar Telegram WebApp bo'lmasa, demo rejim
+
+
+
   if (typeof window.Telegram === 'undefined') {
     window.Telegram = {
       WebApp: {
@@ -46,6 +50,7 @@ onMounted(async () => {
       },
     }
   }
+  await checkUserRegistration(localUser)
 
   const tg = window.Telegram.WebApp
   tg.ready()
@@ -61,8 +66,8 @@ onMounted(async () => {
     document.body.classList.toggle('dark-mode', theme.value === 'dark')
   })
 
-  // Foydalanuvchini tekshirish
-  await checkUserRegistration(tg.initDataUnsafe?.user?.id)
+
+
 
   // 2 soniyalik splash loader
   setTimeout(() => {
@@ -83,13 +88,12 @@ const checkUserRegistration = async (telegramId) => {
   try {
     const response = await axios.get(`https://ifoda-shop.uz/telegramuser_api/get-telegram-id/${telegramId}/`)
 
-    // Agar foydalanuvchi topilmasa
     if (response.data.error && response.data.error.includes('does not exist')) {
       router.push('/register')
     }
   } catch (error) {
     console.error('Foydalanuvchi tekshirishda xato:', error)
-    // Xato bo'lsa ham registratsiyaga yo'naltiramiz
+
     router.push('/register')
   }
 }
@@ -102,12 +106,18 @@ watch(route, (newRoute) => {
 function handleBackButton(path) {
   const tg = window.Telegram.WebApp
 
-  if (path === '/chat') {
+  if (path === '/chats') {
     tg.BackButton.show()
     tg.onEvent('backButtonClicked', () => {
-      window.history.back()
+      router.push('/')
     })
-  } else {
+  } else if (path === 'chat/id') {
+    tg.BackButton.show()
+    tg.onEvent('backButtonClicked', () => {
+      router.push('/chats')
+    })
+  }
+  else {
     tg.BackButton.hide()
     tg.offEvent('backButtonClicked')
   }
