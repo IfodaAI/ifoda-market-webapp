@@ -52,7 +52,7 @@ onMounted(async () => {
   }
 
   const tg = window.Telegram.WebApp
-  await checkUserRegistration(localUser, tg.initDataUnsafe.user.id)
+  await checkUserRegistration(tg.initDataUnsafe.user.id)
   tg.ready()
   tg.expand()
 
@@ -79,16 +79,19 @@ onMounted(async () => {
 })
 
 // Foydalanuvchi registratsiyadan o'tganligini tekshirish
-const checkUserRegistration = async (telegramId, tgId) => {
-  if (!telegramId) {
-    router.push('/register')
-    return
-  }
+const checkUserRegistration = async (tgId) => {
+  // if (!telegramId) {
+  //   router.push('/register')
+  //   return
+  // }
   try {
     const response = await axios.get(`https://ifoda-shop.uz/telegramuser_api/get-telegram-id/${tgId}/`)
 
     if (response.data.error && response.data.error.includes('does not exist')) {
       router.push('/register')
+    }
+    else if (response.data && response.data.id) {
+      localStorage.setItem('telegram_user_id', response.data.id)
     }
   } catch (error) {
     console.error('Foydalanuvchi tekshirishda xato:', error)
@@ -110,7 +113,7 @@ function handleBackButton(path) {
     tg.onEvent('backButtonClicked', () => {
       router.push('/')
     })
-  } else if (path === 'chat/id') {
+  } else if (path.startsWith('/chat/')) {
     tg.BackButton.show()
     tg.onEvent('backButtonClicked', () => {
       router.push('/chats')
