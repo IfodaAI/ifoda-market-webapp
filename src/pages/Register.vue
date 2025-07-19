@@ -1,6 +1,6 @@
 <template>
     <div class="register-page">
-        <div class="header">
+        <div class="header-register">
             <h1>Ro'yxatdan o'tish</h1>
         </div>
 
@@ -229,14 +229,14 @@ const goBack = () => {
     color: var(--text-color);
 }
 
-.header {
+.header-register {
     display: flex;
     align-items: center;
     margin-bottom: 24px;
     position: relative;
 }
 
-.header h1 {
+.header-register h1 {
     margin: 0 auto;
     font-size: 20px;
     font-weight: 600;

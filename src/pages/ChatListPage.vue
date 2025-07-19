@@ -1,6 +1,6 @@
 <template>
     <div class="chat-list-page">
-        <div class="header">
+        <div class="header-chat-list">
             <h1>💬 Plant Doctor</h1>
         </div>
 
