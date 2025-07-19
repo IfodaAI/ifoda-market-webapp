@@ -1,6 +1,39 @@
-# Vue 3 + Vite
+# 💊 Vue Pills Catalog
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+A modern and responsive Vue 3 + Tailwind CSS based pills (drug) catalog application with:
 
-Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://vuejs.org/guide/scaling-up/tooling.html#ide-support).
-# ifoda-market-webapp
+- ✅ Infinite Scroll
+- 🌙 Dark Mode Support
+- 🧱 Skeleton Loaders
+- 🖼️ Image Fallbacks
+- ⚡ API Pagination Support
+
+---
+
+## 📸 Preview
+
+![Preview Screenshot](preview.png) <!-- o'zing yuklagan rasm nomi bo'lishi kerak -->
+
+---
+
+## 🛠️ Technologies Used
+
+- [Vue 3](https://vuejs.org/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [Axios](https://axios-http.com/)
+- [Vite](https://vitejs.dev/) (for blazing fast dev environment)
+
+---
+
+## 🚀 Features
+
+- **Infinite Scroll:** Mahsulotlar sahifalanmagan holatda scroll orqali avtomatik yuklanadi.
+- **Dark Mode:** Foydalanuvchi qurilmasi yoki tanloviga mos ravishda qorong‘i rejimga o‘tadi.
+- **Fallback Images:** Rasm mavjud bo‘lmasa default `no-image.png` ko‘rsatiladi.
+- **Skeleton Loaders:** Mahsulotlar yuklanayotganda silliq animatsiyali skeletlar ko‘rinadi.
+- **Responsive Design:** Mobil, planshet va desktop qurilmalarda to‘liq moslashgan.
+
+---
+
+## 📂 Project Structure
+
