@@ -10,8 +10,8 @@
         </div>
 
         <!-- Buyurtmalar -->
-        <div class="card">
-            <div class="card-header">
+        <div class="card-profile">
+            <div class="card-header-profile">
                 <h3>🧾 Oxirgi buyurtmalar</h3>
                 <router-link v-if="orders.length > 0" to="/orders" class="view-all">
                     Barchasini ko'rish
@@ -53,7 +53,7 @@
         </div>
 
         <!-- Yordam -->
-        <div class="card">
+        <div class="card-profile">
             <h3>📬 Yordam</h3>
             <a class="support-btn" :href="supportLink" target="_blank">
                 Telegram orqali bog'lanish

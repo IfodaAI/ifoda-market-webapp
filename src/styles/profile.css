@@ -33,7 +33,7 @@ h2 {
   font-weight: 600;
 }
 
-.card {
+.card-profile {
   background: var(--card-bg);
   margin: 0 15px 20px 15px;
   border-radius: 16px;
@@ -42,7 +42,7 @@ h2 {
   transition: ease-in-out 250ms;
 }
 
-.card-header {
+.card-header-profile {
   display: flex;
   justify-content: space-between;
   align-items: center;
