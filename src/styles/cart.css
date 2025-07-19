@@ -75,7 +75,7 @@ h1 {
   background-color: var(--danger-hover);
 }
 
-.price {
+.price-cart {
   margin: 0;
   font-size: 14px;
   color: var(--muted);

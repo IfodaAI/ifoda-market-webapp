@@ -10,7 +10,7 @@
                         <h3>{{ item.title || item.name }}</h3>
                         <button class="remove-btn" @click="cart.removeFromCart(item.id)">🗑️</button>
                     </div>
-                    <p class="price">
+                    <p class="price-cart">
                         Narxi: <strong>{{ (item.price || 0).toLocaleString('uz-UZ') }} so'm</strong>
                     </p>
                     <div class="bottom">
