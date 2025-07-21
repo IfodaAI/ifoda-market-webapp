@@ -64,7 +64,7 @@
 
 .chat-box {
   flex: 1;
-  padding: 50px 16px;
+  padding: 50px 16px 100px 16px;
   overflow-y: auto;
   overscroll-behavior: contain;
   scroll-behavior: smooth;
@@ -208,7 +208,8 @@
 /* Responsive adjustments */
 @media (max-width: 480px) {
   .chat-message {
-    max-width: 90%;
+    width: fit-content;
+    /* max-width: 90%; */
   }
 
   .message-content {
