@@ -164,8 +164,7 @@ const sendMessage = () => {
     })
 
     // Endi inputni bo'shating
-    newMessage.value = ''
-    scrollToBottom()
+
 
     // Send via WebSocket
     if (socket.value && socket.value.readyState === WebSocket.OPEN) {
@@ -173,6 +172,8 @@ const sendMessage = () => {
     } else {
         console.error('WebSocket not connected')
     }
+    newMessage.value = ''
+    scrollToBottom()
 }
 
 const handleImageUpload = (e) => {
