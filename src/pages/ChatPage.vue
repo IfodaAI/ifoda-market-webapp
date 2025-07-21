@@ -77,8 +77,11 @@ const connectWebSocket = () => {
     socket.value.onopen = () => {
         console.log('WebSocket connected')
         socketConnected.value = true
-        loadMessages()
+        // loadMessages()
     }
+    console.log(socket.readyState);
+
+
 
     socket.value.onmessage = (event) => {
         try {
