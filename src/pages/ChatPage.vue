@@ -1,22 +1,26 @@
 <template>
     <div class="chat-page">
         <div class="chat-header">
-            <!-- <button class="back-btn" @click="goBack">
+            <button class="back-btn" @click="goBack">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M19 12H5M12 19l-7-7 7-7" />
                 </svg>
-            </button> -->
+            </button>
             <p>💬 Plant Doctor</p>
         </div>
 
         <div class="chat-box" ref="chatBox">
+            <div v-if="loading" class="loading-messages">
+                <div class="loading-spinner"></div>
+            </div>
+
             <div v-for="msg in messages" :key="msg.id" class="chat-message" :class="msg.from">
                 <div class="message-content">
                     <img v-if="msg.image" :src="msg.image" class="chat-image" @load="scrollToBottom" />
                     <p v-if="msg.text">{{ msg.text }}</p>
                 </div>
-                <div class="message-time">{{ formatTime(msg.id) }}</div>
+                <div class="message-time">{{ formatTime(msg.timestamp || msg.id) }}</div>
             </div>
         </div>
 
@@ -31,10 +35,10 @@
                 </svg>
             </button>
 
-            <input v-model="newMessage" type="text" placeholder="Type a message..." @focus="activateInput"
-                @blur="inputFocused = false" @keyup.enter="sendMessage" />
+            <input v-model="newMessage" type="text" placeholder="Xabar yozing..." @focus="activateInput"
+                @blur="inputFocused = false" @keyup.enter="sendMessage" :disabled="!socketConnected" />
 
-            <button @click="sendMessage" :disabled="!newMessage.trim()">
+            <button @click="sendMessage" :disabled="!newMessage.trim() || !socketConnected">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="22" y1="2" x2="11" y2="13"></line>
@@ -42,13 +46,17 @@
                 </svg>
             </button>
         </div>
+
+        <div v-if="!socketConnected" class="connection-status">
+            <div class="connection-dot"></div>
+            <span>Ulanmoqda...</span>
+        </div>
     </div>
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import '../styles/chat.css'
 import axios from 'axios'
 
 const route = useRoute()
@@ -58,79 +66,127 @@ const newMessage = ref('')
 const fileInput = ref()
 const chatBox = ref()
 const inputFocused = ref(false)
+const loading = ref(true)
+const socket = ref(null)
+const socketConnected = ref(false)
 
-const goBack = () => {
-    router.push('/chats')
+// WebSocket connection
+const connectWebSocket = () => {
+    const chatId = route.params.id
+    if (!chatId) return
+
+    socket.value = new WebSocket(`wss://ifoda-shop.uz/ws/chat/${chatId}/`)
+
+    socket.value.onopen = () => {
+        console.log('WebSocket connected')
+        socketConnected.value = true
+        loadMessages()
+    }
+
+    socket.value.onmessage = (event) => {
+        const data = JSON.parse(event.data)
+        console.log('Message received:', data)
+
+        if (data.type === 'chat_message') {
+            messages.value.push({
+                id: Date.now(),
+                text: data.message,
+                from: 'bot',
+                timestamp: data.timestamp
+            })
+            scrollToBottom()
+        }
+    }
+
+    socket.value.onclose = () => {
+        console.log('WebSocket disconnected')
+        socketConnected.value = false
+        // Try to reconnect after 5 seconds
+        setTimeout(connectWebSocket, 5000)
+    }
+
+    socket.value.onerror = (error) => {
+        console.error('WebSocket error:', error)
+        socketConnected.value = false
+    }
 }
-
-onMounted(() => {
-    loadMessages()
-})
 
 const loadMessages = async () => {
-    // Bu yerda chat ID bo'yicha xabarlarni yuklash
-    // Hozircha demo ma'lumotlar
-    messages.value = [
-        {
-            id: Date.now(),
-            text: "👋 Hello! Welcome to our plant doctor!\n📸 Please send a photo of your sick plant.\n🧪 We'll analyze it and recommend the best treatment!",
-            from: 'bot'
+    try {
+        const response = await axios.get(`https://ifoda-shop.uz/order_api/${route.params.id}/messages`)
+        messages.value = response.data.messages.map(msg => ({
+            id: msg.id,
+            text: msg.text,
+            from: msg.is_bot ? 'bot' : 'me',
+            timestamp: msg.timestamp
+        }))
+
+        // Add welcome message if no messages exist
+        if (messages.value.length === 0) {
+            messages.value.push({
+                id: Date.now(),
+                text: "👋 Salom! Plant Doctor ga xush kelibsiz!\n📸 Kasal o'simlikning rasmini yuboring.\n🧪 Biz tahlil qilib eng yaxshi davolash usulini tavsiya qilamiz!",
+                from: 'bot'
+            })
         }
-    ]
-}
 
-const activateInput = () => {
-    inputFocused.value = true
-    scrollToBottom()
-}
-
-const formatTime = (timestamp) => {
-    const date = new Date(timestamp)
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        scrollToBottom()
+    } catch (error) {
+        console.error('Xabarlarni yuklashda xato:', error)
+    } finally {
+        loading.value = false
+    }
 }
 
 const sendMessage = async () => {
-    if (newMessage.value.trim()) {
-        const msg = {
-            id: Date.now(),
-            text: newMessage.value,
-            from: 'me'
-        }
+    if (!newMessage.value.trim() || !socketConnected.value) return
 
-        messages.value.push(msg)
-        newMessage.value = ''
-        scrollToBottom()
+    const msg = {
+        id: Date.now(),
+        text: newMessage.value,
+        from: 'me',
+        timestamp: new Date().toISOString()
+    }
 
-        // API ga xabarni yuborish
-        try {
+    messages.value.push(msg)
+    newMessage.value = ''
+    scrollToBottom()
+
+    try {
+        // Send message via WebSocket
+        if (socket.value && socket.value.readyState === WebSocket.OPEN) {
+            socket.value.send(JSON.stringify({
+                type: 'chat_message',
+                message: msg.text
+            }))
+        } else {
+            // Fallback to HTTP if WebSocket is not available
             await axios.post(`https://ifoda-shop.uz/order_api/${route.params.id}/messages`, {
-                message: msg.text,
-                timestamp: msg.id
+                message: msg.text
             })
-        } catch (error) {
-            console.error('Xabar yuborishda xato:', error)
         }
+    } catch (error) {
+        console.error('Xabar yuborishda xato:', error)
     }
 }
 
 const handleImageUpload = async (e) => {
     const file = e.target.files[0]
-    if (file) {
-        const reader = new FileReader()
-        reader.onload = () => {
-            const msg = {
-                id: Date.now(),
-                image: reader.result,
-                from: 'me'
-            }
-            messages.value.push(msg)
-            scrollToBottom()
+    if (!file) return
 
-            // API ga rasmni yuborish
-            uploadImage(file)
+    const reader = new FileReader()
+    reader.onload = () => {
+        const msg = {
+            id: Date.now(),
+            image: reader.result,
+            from: 'me',
+            timestamp: new Date().toISOString()
         }
-        reader.readAsDataURL(file)
+        messages.value.push(msg)
+        scrollToBottom()
+        uploadImage(file)
     }
+    reader.readAsDataURL(file)
     e.target.value = null
 }
 
@@ -151,10 +207,103 @@ const uploadImage = async (file) => {
 
 const scrollToBottom = () => {
     nextTick(() => {
-        chatBox.value.scrollTo({
-            top: chatBox.value.scrollHeight,
-            behavior: 'smooth'
-        })
+        if (chatBox.value) {
+            chatBox.value.scrollTo({
+                top: chatBox.value.scrollHeight,
+                behavior: 'smooth'
+            })
+        }
     })
 }
+
+const activateInput = () => {
+    inputFocused.value = true
+    scrollToBottom()
+}
+
+const formatTime = (timestamp) => {
+    const date = new Date(timestamp)
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+}
+
+const goBack = () => {
+    router.push('/chats')
+}
+
+onMounted(() => {
+    connectWebSocket()
+})
+
+onBeforeUnmount(() => {
+    if (socket.value) {
+        socket.value.close()
+    }
+})
 </script>
+
+<style scoped>
+/* Existing styles... */
+
+.loading-messages {
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+}
+
+.loading-spinner {
+    width: 24px;
+    height: 24px;
+    border: 3px solid rgba(64, 172, 60, 0.2);
+    border-radius: 50%;
+    border-top-color: var(--primary);
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.connection-status {
+    position: fixed;
+    bottom: 70px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--card-bg);
+    padding: 6px 12px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.connection-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #ffc107;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 0.5;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0.5;
+    }
+}
+
+.chat-input:disabled {
+    background-color: #f5f5f5;
+    cursor: not-allowed;
+}
+</style>
