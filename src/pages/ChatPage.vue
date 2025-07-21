@@ -57,6 +57,7 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import '../styles/chat.css'
 
 const route = useRoute()
 const router = useRouter()
