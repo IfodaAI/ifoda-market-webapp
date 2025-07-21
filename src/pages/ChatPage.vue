@@ -106,7 +106,7 @@ const connectWebSocket = () => {
             // Handle both message formats (text vs message property)
             const messageText = data.text || data.message || ''
 
-            if (data.type === 'TEXT' && messageText) {
+            if (data.type === 'TEXT' && data.sender === 'USER' && messageText) {
                 messages.value.push({
                     id: data.id || Date.now(),
                     text: messageText,
