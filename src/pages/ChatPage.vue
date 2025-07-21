@@ -77,7 +77,7 @@ const loading = ref(true)
 // Activate input function
 const activateInput = () => {
     inputFocused.value = true
-    scrollToBottom()
+    scrollToBottom(chatBox)
 }
 
 // Go back function
@@ -114,7 +114,7 @@ const connectWebSocket = () => {
                     timestamp: data.timestamp || new Date().toISOString(),
                     type: 'TEXT'
                 })
-                scrollToBottom()
+                scrollToBottom(chatBox)
             }
         } catch (error) {
             console.error('Error parsing message:', error)
@@ -161,7 +161,7 @@ const sendMessage = () => {
     }
 
     newMessage.value = ''
-    scrollToBottom()
+    scrollToBottom(chatBox)
 }
 
 const handleImageUpload = (e) => {
@@ -178,7 +178,7 @@ const handleImageUpload = (e) => {
             type: 'IMAGE'
         }
         messages.value.push(msg)
-        scrollToBottom()
+        scrollToBottom(chatBox)
 
         // Prepare image data for sending
         const imageData = {
@@ -205,7 +205,7 @@ onMounted(() => {
         from: 'bot',
         timestamp: new Date().toISOString()
     })
-    scrollToBottom()
+    scrollToBottom(chatBox)
 })
 
 onBeforeUnmount(() => {

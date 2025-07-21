@@ -1,6 +1,6 @@
 import { nextTick } from "vue"
 
-export const scrollToBottom = () => {
+export const scrollToBottom = (chatBox) => {
     nextTick(() => {
         if (chatBox.value) {
             chatBox.value.scrollTo({
