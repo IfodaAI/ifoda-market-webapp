@@ -55,7 +55,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { formatTime } from '../utility/formatter'
 import { scrollToBottom } from '../utility/scroll'
@@ -110,7 +110,7 @@ const connectWebSocket = () => {
                 messages.value.push({
                     id: data.id || Date.now(),
                     text: messageText,
-                    from: data.sender === 'BOT' ? 'bot' : 'user',
+                    from: data.sender === 'USER' ? 'bot' : 'user',
                     timestamp: data.timestamp || new Date().toISOString(),
                     type: 'TEXT'
                 })
@@ -140,7 +140,7 @@ const sendMessage = () => {
 
     const messageData = {
         text: messageText,  // Using 'message' instead of 'text' to match backend
-        sender: 'USER',
+        sender: 'BOT',
         type: 'TEXT'
     }
 
