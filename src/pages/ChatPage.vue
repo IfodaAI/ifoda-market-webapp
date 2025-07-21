@@ -57,6 +57,9 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { formatTime } from '../utility/formatter'
+import { scrollToBottom } from '../utility/scroll'
+import '../styles/chat.css'
 
 const route = useRoute()
 const router = useRouter()
@@ -69,23 +72,7 @@ const socket = ref(null)
 const socketConnected = ref(false)
 const loading = ref(true)
 
-// Format time function
-const formatTime = (timestamp) => {
-    const date = new Date(timestamp)
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-}
 
-// Scroll to bottom function
-const scrollToBottom = () => {
-    nextTick(() => {
-        if (chatBox.value) {
-            chatBox.value.scrollTo({
-                top: chatBox.value.scrollHeight,
-                behavior: 'smooth'
-            })
-        }
-    })
-}
 
 // Activate input function
 const activateInput = () => {
@@ -152,7 +139,7 @@ const sendMessage = () => {
     if (!messageText || !socketConnected.value) return
 
     const messageData = {
-        message: messageText,  // Using 'message' instead of 'text' to match backend
+        text: messageText,  // Using 'message' instead of 'text' to match backend
         sender: 'USER',
         type: 'TEXT'
     }
@@ -228,69 +215,4 @@ onBeforeUnmount(() => {
 })
 </script>
 
-<style scoped>
-/* Existing styles... */
-
-.loading-messages {
-    display: flex;
-    justify-content: center;
-    padding: 20px;
-}
-
-.loading-spinner {
-    width: 24px;
-    height: 24px;
-    border: 3px solid rgba(64, 172, 60, 0.2);
-    border-radius: 50%;
-    border-top-color: var(--primary);
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-.connection-status {
-    position: fixed;
-    bottom: 70px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: var(--card-bg);
-    padding: 6px 12px;
-    border-radius: 20px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.connection-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background-color: #ffc107;
-    animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse {
-    0% {
-        opacity: 0.5;
-    }
-
-    50% {
-        opacity: 1;
-    }
-
-    100% {
-        opacity: 0.5;
-    }
-}
-
-.chat-input:disabled {
-    background-color: #f5f5f5;
-    cursor: not-allowed;
-}
-</style>
+<style scoped></style>

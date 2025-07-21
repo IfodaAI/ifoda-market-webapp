@@ -18,3 +18,8 @@ export const formatPhoneNumber = (phone) => {
     // +998901234567 -> +998 90 123 45 67
     return phone.replace(/(\+\d{3})(\d{2})(\d{3})(\d{2})(\d{2})/, '$1 $2 $3 $4 $5')
 }
+
+export const formatTime = (timestamp) => {
+    const date = new Date(timestamp)
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+}
