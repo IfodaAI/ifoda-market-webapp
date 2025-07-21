@@ -116,12 +116,15 @@ const connectWebSocket = () => {
             const data = JSON.parse(event.data)
             console.log('Message received:', data)
 
-            if (data.type === 'TEXT') {
+            // Handle both message formats (text vs message property)
+            const messageText = data.text || data.message || ''
+
+            if (data.type === 'TEXT' && messageText) {
                 messages.value.push({
-                    id: Date.now(),
-                    text: data.message,
+                    id: data.id || Date.now(),
+                    text: messageText,
                     from: data.sender === 'BOT' ? 'bot' : 'user',
-                    timestamp: new Date().toISOString(),
+                    timestamp: data.timestamp || new Date().toISOString(),
                     type: 'TEXT'
                 })
                 scrollToBottom()
@@ -134,7 +137,7 @@ const connectWebSocket = () => {
     socket.value.onclose = () => {
         console.log('WebSocket disconnected')
         socketConnected.value = false
-        setTimeout(connectWebSocket, 5000) // Reconnect after 5 seconds
+        setTimeout(connectWebSocket, 5000)
     }
 
     socket.value.onerror = (error) => {
@@ -145,26 +148,23 @@ const connectWebSocket = () => {
 
 
 const sendMessage = () => {
-    if (!newMessage.value.trim() || !socketConnected.value) return
+    const messageText = newMessage.value.trim()
+    if (!messageText || !socketConnected.value) return
 
-    // messageData ni inputni bo'shatishdan oldin yarating
     const messageData = {
-        message: newMessage.value,
+        message: messageText,  // Using 'message' instead of 'text' to match backend
         sender: 'USER',
         type: 'TEXT'
     }
 
     // Add to local messages immediately
     messages.value.push({
-        id: Date.now(),
-        text: newMessage.value,
+        id: Date.now().toString(),
+        text: messageText,
         from: 'me',
         timestamp: new Date().toISOString(),
         type: 'TEXT'
     })
-
-    // Endi inputni bo'shating
-
 
     // Send via WebSocket
     if (socket.value && socket.value.readyState === WebSocket.OPEN) {
@@ -172,6 +172,7 @@ const sendMessage = () => {
     } else {
         console.error('WebSocket not connected')
     }
+
     newMessage.value = ''
     scrollToBottom()
 }
