@@ -55,7 +55,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { ref, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
@@ -142,7 +142,6 @@ const connectWebSocket = () => {
         socketConnected.value = false
     }
 }
-console.log(newMessage.value, 'newMessage value');
 
 
 const sendMessage = () => {
@@ -207,7 +206,7 @@ const handleImageUpload = (e) => {
     reader.readAsDataURL(file)
     e.target.value = null
 }
-
+watch(newMessage, val => console.log(val, 'newMessage value'))
 onMounted(() => {
     connectWebSocket()
     // Add initial bot message
