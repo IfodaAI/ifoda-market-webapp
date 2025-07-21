@@ -146,6 +146,7 @@ const connectWebSocket = () => {
 const sendMessage = () => {
     if (!newMessage.value.trim() || !socketConnected.value) return
 
+    // messageData ni inputni bo'shatishdan oldin yarating
     const messageData = {
         message: newMessage.value,
         sender: 'USER',
@@ -161,6 +162,7 @@ const sendMessage = () => {
         type: 'TEXT'
     })
 
+    // Endi inputni bo'shating
     newMessage.value = ''
     scrollToBottom()
 
