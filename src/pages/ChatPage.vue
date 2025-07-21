@@ -142,6 +142,8 @@ const connectWebSocket = () => {
         socketConnected.value = false
     }
 }
+console.log(newMessage.value, 'newMessage value');
+
 
 const sendMessage = () => {
     if (!newMessage.value.trim() || !socketConnected.value) return
