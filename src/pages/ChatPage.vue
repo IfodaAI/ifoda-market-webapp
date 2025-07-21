@@ -63,9 +63,41 @@ const route = useRoute()
 const router = useRouter()
 const messages = ref([])
 const newMessage = ref('')
+const fileInput = ref(null)
+const chatBox = ref(null)
+const inputFocused = ref(false)
 const socket = ref(null)
 const socketConnected = ref(false)
 const loading = ref(true)
+
+// Format time function
+const formatTime = (timestamp) => {
+    const date = new Date(timestamp)
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+}
+
+// Scroll to bottom function
+const scrollToBottom = () => {
+    nextTick(() => {
+        if (chatBox.value) {
+            chatBox.value.scrollTo({
+                top: chatBox.value.scrollHeight,
+                behavior: 'smooth'
+            })
+        }
+    })
+}
+
+// Activate input function
+const activateInput = () => {
+    inputFocused.value = true
+    scrollToBottom()
+}
+
+// Go back function
+const goBack = () => {
+    router.push('/chats')
+}
 
 // WebSocket connection
 const connectWebSocket = () => {
@@ -77,11 +109,8 @@ const connectWebSocket = () => {
     socket.value.onopen = () => {
         console.log('WebSocket connected')
         socketConnected.value = true
-        // loadMessages()
+        loading.value = false
     }
-    console.log(socket.readyState);
-
-
 
     socket.value.onmessage = (event) => {
         try {
@@ -120,7 +149,7 @@ const sendMessage = () => {
 
     const messageData = {
         message: newMessage.value,
-        sender: 'USER', // Or get from Telegram user data
+        sender: 'USER',
         type: 'TEXT'
     }
 
@@ -141,14 +170,51 @@ const sendMessage = () => {
         socket.value.send(JSON.stringify(messageData))
     } else {
         console.error('WebSocket not connected')
-        // Fallback to HTTP API if needed
     }
 }
 
-// Other methods remain the same (loadMessages, handleImageUpload, etc.)
+const handleImageUpload = (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+
+    const reader = new FileReader()
+    reader.onload = () => {
+        const msg = {
+            id: Date.now(),
+            image: reader.result,
+            from: 'me',
+            timestamp: new Date().toISOString(),
+            type: 'IMAGE'
+        }
+        messages.value.push(msg)
+        scrollToBottom()
+
+        // Prepare image data for sending
+        const imageData = {
+            message: reader.result,
+            sender: 'USER',
+            type: 'IMAGE'
+        }
+
+        // Send via WebSocket
+        if (socket.value && socket.value.readyState === WebSocket.OPEN) {
+            socket.value.send(JSON.stringify(imageData))
+        }
+    }
+    reader.readAsDataURL(file)
+    e.target.value = null
+}
 
 onMounted(() => {
     connectWebSocket()
+    // Add initial bot message
+    messages.value.push({
+        id: Date.now(),
+        text: "👋 Salom! Plant Doctor ga xush kelibsiz!\n📸 Kasal o'simlikning rasmini yuboring.\n🧪 Biz tahlil qilib eng yaxshi davolash usulini tavsiya qilamiz!",
+        from: 'bot',
+        timestamp: new Date().toISOString()
+    })
+    scrollToBottom()
 })
 
 onBeforeUnmount(() => {
