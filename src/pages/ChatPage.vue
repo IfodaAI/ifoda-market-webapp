@@ -190,7 +190,7 @@ const handleImageUpload = async (e) => {
             formData.append('image', file)     // image file
 
             // Send to API
-            const response = await fetch('http://ifoda-shop.uz/message_api/', {
+            const response = await fetch('https://ifoda-shop.uz/message_api/', {
                 method: 'POST',
                 body: formData
             })
