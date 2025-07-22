@@ -167,6 +167,7 @@ const sendMessage = () => {
 const handleImageUpload = async (e) => {
     const file = e.target.files[0]
     if (!file) return
+    const chatId = route.params.id
 
     const reader = new FileReader()
     reader.onload = async () => {
@@ -184,7 +185,7 @@ const handleImageUpload = async (e) => {
         try {
             // Prepare FormData for API
             const formData = new FormData()
-            formData.append('order', 'order')  // required field
+            formData.append('order', chatId)  // required field
             formData.append('type', 'IMAGE')    // required field
             formData.append('sender', 'BOT')    // required field
             formData.append('image', file)     // image file
