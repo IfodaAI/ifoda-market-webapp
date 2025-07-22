@@ -153,7 +153,7 @@ const fetchChatHistory = async () => {
                 id: item.id || Date.now(),
                 text: item.text || item.message,
                 image: item.type === 'IMAGE' ? item.image_url : null,
-                from: item.sender === 'USER' ? 'me' : 'bot',
+                from: item.sender === 'BOT' ? 'me' : 'bot',
                 timestamp: item.timestamp || new Date().toISOString(),
                 type: item.type || 'TEXT'
             }));
