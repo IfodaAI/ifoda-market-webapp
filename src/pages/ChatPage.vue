@@ -133,6 +133,50 @@ const connectWebSocket = () => {
     }
 }
 
+const fetchChatHistory = async () => {
+    const chatId = route.params.id;
+    if (!chatId) return;
+
+    try {
+        loading.value = true;
+        const response = await fetch(`https://ifoda-shop.uz/message_api/?order=${chatId}`);
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch chat history');
+        }
+
+        const history = await response.json();
+
+        // API javobini bizning formatimizga o'tkazamiz
+        const formattedMessages = history.map(item => ({
+            id: item.id || Date.now(),
+            text: item.text || item.message,
+            image: item.type === 'IMAGE' ? item.image_url : null,
+            from: item.sender === 'USER' ? 'bot' : 'me',
+            timestamp: item.timestamp || new Date().toISOString(),
+            type: item.type || 'TEXT'
+        }));
+
+        // Eski xabarlarni saqlab qolish uchun
+        const existingMessages = messages.value.filter(msg =>
+            !formattedMessages.some(historyMsg => historyMsg.id === msg.id)
+        );
+
+        messages.value = [...formattedMessages, ...existingMessages];
+
+    } catch (error) {
+        console.error('Error fetching chat history:', error);
+        messages.value.push({
+            id: Date.now(),
+            text: "Chat tarixini yuklashda xatolik yuz berdi",
+            from: 'bot',
+            timestamp: new Date().toISOString()
+        });
+    } finally {
+        loading.value = false;
+        scrollToBottom(chatBox);
+    }
+};
 
 const sendMessage = () => {
     const messageText = newMessage.value.trim()
@@ -163,6 +207,7 @@ const sendMessage = () => {
     newMessage.value = ''
     scrollToBottom(chatBox)
 }
+
 
 const handleImageUpload = async (e) => {
     const file = e.target.files[0]
@@ -226,14 +271,20 @@ watch(newMessage, val => console.log(val, 'newMessage value'))
 onMounted(() => {
     connectWebSocket()
     // Add initial bot message
-    messages.value.push({
-        id: Date.now(),
-        text: "👋 Salom! Plant Doctor ga xush kelibsiz!\n📸 Kasal o'simlikning rasmini yuboring.\n🧪 Biz tahlil qilib eng yaxshi davolash usulini tavsiya qilamiz!",
-        from: 'bot',
-        timestamp: new Date().toISOString()
-    })
-    scrollToBottom(chatBox)
+    if (messages.value.length === 0) {
+        messages.value.push({
+            id: Date.now(),
+            text: "👋 Salom! Plant Doctor ga xush kelibsiz!\n📸 Kasal o'simlikning rasmini yuboring.\n🧪 Biz tahlil qilib eng yaxshi davolash usulini tavsiya qilamiz!",
+            from: 'bot',
+            timestamp: new Date().toISOString()
+        });
+    }
+
+    // Chat tarixini yuklash
+    fetchChatHistory();
+    scrollToBottom(chatBox);
 })
+
 
 onBeforeUnmount(() => {
     if (socket.value) {
