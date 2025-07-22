@@ -164,12 +164,13 @@ const sendMessage = () => {
     scrollToBottom(chatBox)
 }
 
-const handleImageUpload = (e) => {
+const handleImageUpload = async (e) => {
     const file = e.target.files[0]
     if (!file) return
 
     const reader = new FileReader()
-    reader.onload = () => {
+    reader.onload = async () => {
+        // Create message object for local display
         const msg = {
             id: Date.now(),
             image: reader.result,
@@ -180,16 +181,41 @@ const handleImageUpload = (e) => {
         messages.value.push(msg)
         scrollToBottom(chatBox)
 
-        // Prepare image data for sending
-        const imageData = {
-            message: reader.result,
-            sender: 'USER',
-            type: 'IMAGE'
-        }
+        try {
+            // Prepare FormData for API
+            const formData = new FormData()
+            formData.append('order', 'order')  // required field
+            formData.append('type', 'IMAGE')    // required field
+            formData.append('sender', 'BOT')    // required field
+            formData.append('image', file)     // image file
 
-        // Send via WebSocket
-        if (socket.value && socket.value.readyState === WebSocket.OPEN) {
-            socket.value.send(JSON.stringify(imageData))
+            // Send to API
+            const response = await fetch('http://ifoda-shop.uz/message_api/', {
+                method: 'POST',
+                body: formData
+            })
+
+            if (!response.ok) {
+                throw new Error('API request failed')
+            }
+
+            const data = await response.json()
+            console.log('API response:', data)
+
+            // Handle API response if needed
+            if (data.success) {
+                // You can add any success handling here
+            }
+        } catch (error) {
+            console.error('Error sending image:', error)
+            // Optionally show error message to user
+            messages.value.push({
+                id: Date.now(),
+                text: "Rasm yuborishda xatolik yuz berdi. Iltimos, qayta urunib ko'ring.",
+                from: 'bot',
+                timestamp: new Date().toISOString()
+            })
+            scrollToBottom(chatBox)
         }
     }
     reader.readAsDataURL(file)
