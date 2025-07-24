@@ -29,7 +29,9 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useCartStore } from '../stores/cartStore';
+
+
+import { useCartStore } from '../store/cartStore';
 import { formatPrice } from '../utility/formatter';
 
 const props = defineProps({
