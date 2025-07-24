@@ -125,9 +125,9 @@ const connectWebSocket = () => {
             // Handle both message formats (text vs message property)
             const messageText = data.text || data.message || ''
             const containsDiseases = messageText.includes('Kasalliklar')
+            console.log('matn', messageText);
             if (containsDiseases) {
                 console.log('Contains diseases', showMedicinesButton.value);
-                console.log('matn', messageText);
 
                 showMedicinesButton.value = true
                 data.orderId = data.order || chatId // Use order from data or chatId
