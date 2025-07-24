@@ -17,8 +17,12 @@
                             <p>{{ item.description }}</p>
                             <p class="price">{{ formatPrice(item.price) }}</p>
                         </div>
-                        <button @click="addToCart(item)" class="add-btn">
-                            Savatga qo'shish
+                        <button @click="addToCart(item)" :disabled="isAdded(item.id)"
+                            :class="['add-btn', { added: isAdded(item.id) }]">
+                            <span class="btn-icon">🛒</span>
+                            <span class="btn-text">
+                                {{ isAdded(item.id) ? "Qo‘shilgan ✅" : "Savatga qo‘shish" }}
+                            </span>
                         </button>
                     </div>
                 </div>
@@ -28,8 +32,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import axios from 'axios'; // Import axios
+import { ref, onMounted, computed } from 'vue';
+import axios from 'axios';
 import { useCartStore } from '../store/cartStore';
 import { formatPrice } from '../utility/formatter';
 
@@ -42,6 +46,7 @@ const props = defineProps({
 
 const emit = defineEmits(['close']);
 const cartStore = useCartStore();
+
 const medicines = ref([]);
 const loading = ref(false);
 const isOpen = ref(true);
@@ -53,45 +58,34 @@ const fetchMedicines = async () => {
             `https://ifoda-shop.uz/ordertopills_api/get-order-id/${props.orderId}`
         );
 
-        // Axios wraps the response in a data property
-        console.log('Full response:', response);
-        console.log('Response data:', response.data);
-
-        // Make sure the data structure is what you expect
+        // 💊 Dori ma'lumotlarini olish
         medicines.value = Array.isArray(response.data)
             ? response.data.map(item => item.pills)
             : [];
-
     } catch (error) {
         console.error('Error fetching medicines:', error);
-
-        // Axios provides detailed error info
-        if (error.response) {
-            // The request was made and the server responded with a status code
-            console.error('Error data:', error.response.data);
-            console.error('Error status:', error.response.status);
-            console.error('Error headers:', error.response.headers);
-        } else if (error.request) {
-            // The request was made but no response was received
-            console.error('No response received:', error.request);
-        } else {
-            // Something happened in setting up the request
-            console.error('Request setup error:', error.message);
-        }
     } finally {
         loading.value = false;
     }
 };
 
+// ✅ Savatda borligini tekshirish
+const isAdded = (id) => {
+    return cartStore.items.some(item => item.id === id);
+};
+
+// ➕ Qo‘shish
 const addToCart = (medicine) => {
-    cartStore.addToCart({
-        id: medicine.id,
-        name: medicine.name,
-        price: medicine.price,
-        description: medicine.description,
-        image: medicine.image
-    });
-    closeModal();
+    if (!isAdded(medicine.id)) {
+        cartStore.addToCart({
+            id: medicine.id,
+            name: medicine.name,
+            price: medicine.price,
+            description: medicine.description,
+            image: medicine.image
+        });
+    }
+    // closeModal(); // 🟡 optional – agar qo‘shgan zahoti yopilishini xohlamasang, comment qoldir
 };
 
 const closeModal = () => {

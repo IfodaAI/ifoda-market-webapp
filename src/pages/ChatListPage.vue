@@ -52,7 +52,7 @@ const fetchChats = async () => {
         const userID = tg?.initDataUnsafe?.user?.id;
         const response = await axios.get('https://ifoda-shop.uz/order_api/my_orders/', {
             params: {
-                user_id: userID,
+                user_id: userID || 5319120806,
                 is_chat: true
             }
         })

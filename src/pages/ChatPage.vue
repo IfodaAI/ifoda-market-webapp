@@ -19,8 +19,8 @@
                 <div class="message-content">
                     <img v-if="msg.image" :src="msg.image" class="chat-image" @load="scrollToBottom" />
                     <p v-if="msg.text">{{ msg.text }}</p>
-                    <button v-if="msg.showMedicinesButton" @click="openMedicinesModal(msg.orderId)"
-                        class="medicines-btn">
+                    <button v-if="msg.showMedicinesButton && msg.from === 'bot'"
+                        @click="openMedicinesModal(msg.orderId)" class="medicines-btn">
                         Dorilarni ko'rish
                     </button>
                 </div>
@@ -55,7 +55,7 @@
             <div class="connection-dot"></div>
             <span>Ulanmoqda...</span>
         </div>
-        <MedicinesModal v-if="showMedicinesModal" :order-id="currentOrderId" @close="closeMedicinesModal" />
+        <MedicinesModal v-if="showMedicinesModal" :order-id="route.params.id" @close="closeMedicinesModal" />
     </div>
 </template>
 
@@ -77,7 +77,7 @@ const inputFocused = ref(false)
 const socket = ref(null)
 const socketConnected = ref(false)
 const loading = ref(true)
-const currentOrderId = route.params.id
+const currentOrderId = ref(route.params.id);
 const showMedicinesModal = ref(false);
 const showMedicinesButton = ref(false);
 
