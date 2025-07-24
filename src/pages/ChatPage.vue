@@ -169,7 +169,6 @@ const fetchChatHistory = async () => {
         }
 
         const history = await response.json();
-        const containsDiseases = /Kasalliklar[:.,!?]?\b/.test(messageText)
 
         // Agar tarixda xabarlar bo'lsa, default xabarni qo'shmaslik
         if (history.length > 0) {
