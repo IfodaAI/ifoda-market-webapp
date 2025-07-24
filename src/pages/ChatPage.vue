@@ -123,15 +123,15 @@ const connectWebSocket = () => {
 
             // Handle both message formats (text vs message property)
             const messageText = data.text || data.message || ''
-            // Tugma faqat "Kasalliklar" bilan boshlansa ko'rinadi
+            // Faqat "Kasalliklar" bilan boshlansa
             const containsDiseases = messageText.trim().toLowerCase().startsWith('kasalliklar')
             if (data.type === 'TEXT' && data.sender === 'USER' && messageText) {
                 messages.value.push({
                     id: data.id || Date.now(),
                     text: messageText,
-                    from: 'USER',
+                    from: data.sender === 'USER' ? 'bot' : 'user',
                     timestamp: data.timestamp || new Date().toISOString(),
-                    showMedicinesButton: containsDiseases,
+                    showMedicinesButton: data.sender === 'USER' && containsDiseases,
                     type: 'TEXT',
                     orderId: chatId
                 })
@@ -175,7 +175,7 @@ const fetchChatHistory = async () => {
                     id: item.id || Date.now(),
                     text: messageText,
                     image: item.type === 'IMAGE' ? item.image_url : null,
-                    from: item.sender === 'USER' ? 'user' : 'bot',
+                    from: item.sender === 'USER' ? 'bot' : 'user',
                     timestamp: item.timestamp || new Date().toISOString(),
                     showMedicinesButton: item.sender === 'USER' && containsDiseases,
                     type: item.type || 'TEXT',
