@@ -19,7 +19,7 @@
                 <div class="message-content">
                     <img v-if="msg.image" :src="msg.image" class="chat-image" @load="scrollToBottom" />
                     <p v-if="msg.text">{{ msg.text }}</p>
-                    <button v-if="msg.from === 'USER' && showMedicinesButton" @click="openMedicinesModal(msg.orderId)"
+                    <button v-if="msg.showMedicinesButton" @click="openMedicinesModal(msg.orderId)"
                         class="medicines-btn">
                         Dorilarni ko'rish
                     </button>
@@ -128,14 +128,14 @@ const connectWebSocket = () => {
             console.log('matn', messageText);
             console.log('tek', containsDiseases);
 
-            if (containsDiseases) {
-                console.log('Contains diseases', showMedicinesButton.value);
+            // if (containsDiseases) {
+            //     console.log('Contains diseases', showMedicinesButton.value);
 
-                showMedicinesButton.value = true
-                data.orderId = data.order || chatId // Use order from data or chatId
-            } else {
-                data.showMedicinesButton = false
-            }
+            //     showMedicinesButton.value = true
+            //     data.orderId = data.order || chatId // Use order from data or chatId
+            // } else {
+            //     data.showMedicinesButton = false
+            // }
 
             if (data.type === 'TEXT' && data.sender === 'USER' && messageText) {
                 messages.value.push({
@@ -143,6 +143,7 @@ const connectWebSocket = () => {
                     text: messageText,
                     from: data.sender === 'USER' ? 'bot' : 'user',
                     timestamp: data.timestamp || new Date().toISOString(),
+                    showMedicinesButton: containsDiseases,
                     type: 'TEXT'
                 })
                 scrollToBottom(chatBox)
