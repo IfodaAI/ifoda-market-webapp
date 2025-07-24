@@ -19,8 +19,8 @@
                 <div class="message-content">
                     <img v-if="msg.image" :src="msg.image" class="chat-image" @load="scrollToBottom" />
                     <p v-if="msg.text">{{ msg.text }}</p>
-                    <button v-if="msg.from === 'USER' && msg.showMedicinesButton"
-                        @click="openMedicinesModal(msg.orderId)" class="medicines-btn">
+                    <button v-if="msg.from === 'USER' && showMedicinesButton" @click="openMedicinesModal(msg.orderId)"
+                        class="medicines-btn">
                         Dorilarni ko'rish
                     </button>
                 </div>
@@ -79,6 +79,7 @@ const socketConnected = ref(false)
 const loading = ref(true)
 const currentOrderId = route.params.id
 const showMedicinesModal = ref(false);
+const showMedicinesButton = ref(false);
 
 
 const openMedicinesModal = (orderId) => {
@@ -125,8 +126,9 @@ const connectWebSocket = () => {
             const messageText = data.text || data.message || ''
             const containsDiseases = messageText.includes('Kasalliklar')
             if (containsDiseases) {
-                console.log('Contains diseases, showing medicines button', messageText)
-                data.showMedicinesButton = true
+                console.log('Contains diseases', showMedicinesButton);
+
+                showMedicinesButton = true
                 data.orderId = data.order || chatId // Use order from data or chatId
             } else {
                 data.showMedicinesButton = false
