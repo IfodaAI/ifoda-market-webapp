@@ -19,6 +19,10 @@
                 <div class="message-content">
                     <img v-if="msg.image" :src="msg.image" class="chat-image" @load="scrollToBottom" />
                     <p v-if="msg.text">{{ msg.text }}</p>
+                    <button v-if="msg.from === 'USER' && msg.showMedicinesButton"
+                        @click="openMedicinesModal(msg.orderId)" class="medicines-btn">
+                        Dorilarni ko'rish
+                    </button>
                 </div>
                 <div class="message-time">{{ formatTime(msg.timestamp || msg.id) }}</div>
             </div>
@@ -51,14 +55,16 @@
             <div class="connection-dot"></div>
             <span>Ulanmoqda...</span>
         </div>
+        <MedicinesModal v-if="showMedicinesModal" :order-id="currentOrderId" @close="closeMedicinesModal" />
     </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { formatTime } from '../utility/formatter'
 import { scrollToBottom } from '../utility/scroll'
+import MedicinesModal from '../components/MedicinesModal.vue'
 import '../styles/chat.css'
 
 const route = useRoute()
@@ -71,8 +77,8 @@ const inputFocused = ref(false)
 const socket = ref(null)
 const socketConnected = ref(false)
 const loading = ref(true)
-
-
+const showMedicinesModal = ref(false)
+const currentOrderId = route.params.id
 
 // Activate input function
 const activateInput = () => {
@@ -83,6 +89,34 @@ const activateInput = () => {
 // Go back function
 const goBack = () => {
     router.push('/chats')
+}
+
+// Open medicines modal
+const openMedicinesModal = (orderId) => {
+    currentOrderId.value = orderId
+    showMedicinesModal.value = true
+}
+
+// Close medicines modal
+const closeMedicinesModal = () => {
+    showMedicinesModal.value = false
+}
+
+// Process incoming messages (both from WS and history)
+const processMessage = (data) => {
+    const messageText = data.text || data.message || ''
+    const containsDiseases = messageText.toLowerCase().includes('kasalliklar')
+
+    return {
+        id: data.id || Date.now(),
+        text: messageText,
+        image: data.type === 'IMAGE' ? data.image_url : null,
+        from: data.sender === 'USER' ? 'bot' : 'me',
+        timestamp: data.timestamp || new Date().toISOString(),
+        type: data.type || 'TEXT',
+        showMedicinesButton: data.sender === 'USER' && containsDiseases,
+        orderId: data.order || route.params.id
+    }
 }
 
 // WebSocket connection
@@ -101,21 +135,8 @@ const connectWebSocket = () => {
     socket.value.onmessage = (event) => {
         try {
             const data = JSON.parse(event.data)
-            console.log('Message received:', data)
-
-            // Handle both message formats (text vs message property)
-            const messageText = data.text || data.message || ''
-
-            if (data.type === 'TEXT' && data.sender === 'USER' && messageText) {
-                messages.value.push({
-                    id: data.id || Date.now(),
-                    text: messageText,
-                    from: data.sender === 'USER' ? 'bot' : 'user',
-                    timestamp: data.timestamp || new Date().toISOString(),
-                    type: 'TEXT'
-                })
-                scrollToBottom(chatBox)
-            }
+            messages.value.push(processMessage(data))
+            scrollToBottom(chatBox)
         } catch (error) {
             console.error('Error parsing message:', error)
         }
@@ -133,67 +154,55 @@ const connectWebSocket = () => {
     }
 }
 
+// Fetch chat history
 const fetchChatHistory = async () => {
-    const chatId = route.params.id;
-    if (!chatId) return;
+    const chatId = route.params.id
+    if (!chatId) return
 
     try {
-        loading.value = true;
-        const response = await fetch(`https://ifoda-shop.uz/message_api/?order=${chatId}`);
+        loading.value = true
+        const response = await fetch(`https://ifoda-shop.uz/message_api/?order=${chatId}`)
 
-        if (!response.ok) {
-            throw new Error('Failed to fetch chat history');
-        }
+        if (!response.ok) throw new Error('Failed to fetch chat history')
 
-        const history = await response.json();
+        const history = await response.json()
+        messages.value = history.map(processMessage)
 
-        // Agar tarixda xabarlar bo'lsa, default xabarni qo'shmaslik
-        if (history.length > 0) {
-            const formattedMessages = history.map(item => ({
-                id: item.id || Date.now(),
-                text: item.text || item.message,
-                image: item.type === 'IMAGE' ? item.image_url : null,
-                from: item.sender === 'BOT' ? 'me' : 'bot',
-                timestamp: item.timestamp || new Date().toISOString(),
-                type: item.type || 'TEXT'
-            }));
-
-            messages.value = formattedMessages;
-        } else {
-            // Agar tarix bo'sh bo'lsa, default xabarni qo'shamiz
+        // Add welcome message if chat is empty
+        if (messages.value.length === 0) {
             messages.value.push({
                 id: Date.now(),
                 text: "👋 Salom! Plant Doctor ga xush kelibsiz!\n📸 Kasal o'simlikning rasmini yuboring.\n🧪 Biz tahlil qilib eng yaxshi davolash usulini tavsiya qilamiz!",
                 from: 'bot',
                 timestamp: new Date().toISOString()
-            });
+            })
         }
-
     } catch (error) {
-        console.error('Error fetching chat history:', error);
+        console.error('Error fetching chat history:', error)
         messages.value.push({
             id: Date.now(),
             text: "Chat tarixini yuklashda xatolik yuz berdi",
             from: 'bot',
             timestamp: new Date().toISOString()
-        });
+        })
     } finally {
-        loading.value = false;
-        scrollToBottom(chatBox);
+        loading.value = false
+        scrollToBottom(chatBox)
     }
-};
+}
 
+// Send text message
 const sendMessage = () => {
     const messageText = newMessage.value.trim()
     if (!messageText || !socketConnected.value) return
 
     const messageData = {
-        text: messageText,  // Using 'message' instead of 'text' to match backend
+        text: messageText,
         sender: 'BOT',
         type: 'TEXT'
     }
 
-    // Add to local messages immediately
+    // Add to local messages
     messages.value.push({
         id: Date.now().toString(),
         text: messageText,
@@ -203,17 +212,15 @@ const sendMessage = () => {
     })
 
     // Send via WebSocket
-    if (socket.value && socket.value.readyState === WebSocket.OPEN) {
+    if (socket.value?.readyState === WebSocket.OPEN) {
         socket.value.send(JSON.stringify(messageData))
-    } else {
-        console.error('WebSocket not connected')
     }
 
     newMessage.value = ''
     scrollToBottom(chatBox)
 }
 
-
+// Handle image upload
 const handleImageUpload = async (e) => {
     const file = e.target.files[0]
     if (!file) return
@@ -221,66 +228,51 @@ const handleImageUpload = async (e) => {
 
     const reader = new FileReader()
     reader.onload = async () => {
-        // Create message object for local display
-        const msg = {
+        // Add to local messages
+        messages.value.push({
             id: Date.now(),
             image: reader.result,
             from: 'me',
             timestamp: new Date().toISOString(),
             type: 'IMAGE'
-        }
-        messages.value.push(msg)
+        })
         scrollToBottom(chatBox)
 
         try {
-            // Prepare FormData for API
-            const formData = new FormData()
-            formData.append('order', chatId)  // required field
-            formData.append('type', 'IMAGE')    // required field
-            formData.append('sender', 'BOT')    // required field
-            formData.append('image', file)     // image file
-
             // Send to API
+            const formData = new FormData()
+            formData.append('order', chatId)
+            formData.append('type', 'IMAGE')
+            formData.append('sender', 'BOT')
+            formData.append('image', file)
+
             const response = await fetch('https://ifoda-shop.uz/message_api/', {
                 method: 'POST',
                 body: formData
             })
 
-            if (!response.ok) {
-                throw new Error('API request failed')
-            }
-
-            const data = await response.json()
-            console.log('API response:', data)
-
-            // Handle API response if needed
-            if (data.success) {
-                // You can add any success handling here
-            }
+            if (!response.ok) throw new Error('API request failed')
         } catch (error) {
             console.error('Error sending image:', error)
-            // Optionally show error message to user
             messages.value.push({
                 id: Date.now(),
                 text: "Rasm yuborishda xatolik yuz berdi. Iltimos, qayta urunib ko'ring.",
                 from: 'bot',
                 timestamp: new Date().toISOString()
             })
-            scrollToBottom(chatBox)
         }
     }
     reader.readAsDataURL(file)
     e.target.value = null
 }
-watch(newMessage, val => console.log(val, 'newMessage value'))
+
+// Initialize
 onMounted(() => {
     connectWebSocket()
-    // Chat tarixini yuklash
-    fetchChatHistory();
-    scrollToBottom(chatBox);
+    fetchChatHistory()
 })
 
-
+// Clean up
 onBeforeUnmount(() => {
     if (socket.value) {
         socket.value.close()

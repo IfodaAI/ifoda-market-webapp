@@ -301,3 +301,18 @@
   background-color: #f5f5f5;
   cursor: not-allowed;
 }
+
+.medicines-btn {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  margin-top: 10px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.medicines-btn:hover {
+  background-color: #45a049;
+}
