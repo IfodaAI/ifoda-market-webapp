@@ -124,8 +124,10 @@ const connectWebSocket = () => {
 
             // Handle both message formats (text vs message property)
             const messageText = data.text || data.message || ''
-            const containsDiseases = messageText.includes('Kasalliklar')
+            const containsDiseases = /Kasalliklar[:.,!?]?\b/.test(messageText)
             console.log('matn', messageText);
+            console.log('tek', containsDiseases);
+
             if (containsDiseases) {
                 console.log('Contains diseases', showMedicinesButton.value);
 
