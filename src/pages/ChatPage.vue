@@ -173,15 +173,19 @@ const fetchChatHistory = async () => {
 
         // Agar tarixda xabarlar bo'lsa, default xabarni qo'shmaslik
         if (history.length > 0) {
-            const formattedMessages = history.map(item => ({
-                id: item.id || Date.now(),
-                text: item.text || item.message,
-                image: item.type === 'IMAGE' ? item.image_url : null,
-                from: item.sender === 'BOT' ? 'me' : 'bot',
-                timestamp: item.timestamp || new Date().toISOString(),
-                showMedicinesButton: item.type === 'TEXT' && item.text && containsDiseases,
-                type: item.type || 'TEXT'
-            }));
+            const formattedMessages = history.map(item => {
+                const text = item.text || item.message || '';
+                const containsDiseases = /Kasalliklar[:.,!?]?\b/.test(text);
+                return {
+                    id: item.id || Date.now(),
+                    text,
+                    image: item.type === 'IMAGE' ? item.image_url : null,
+                    from: item.sender === 'BOT' ? 'me' : 'bot',
+                    timestamp: item.timestamp || new Date().toISOString(),
+                    showMedicinesButton: item.type === 'TEXT' && text && containsDiseases,
+                    type: item.type || 'TEXT'
+                }
+            });
 
             messages.value = formattedMessages;
         } else {
