@@ -29,8 +29,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-
-
+import axios from 'axios'; // Import axios
 import { useCartStore } from '../store/cartStore';
 import { formatPrice } from '../utility/formatter';
 
@@ -50,12 +49,35 @@ const isOpen = ref(true);
 const fetchMedicines = async () => {
     try {
         loading.value = true;
-        const response = await fetch(`https://ifoda-shop.uz/ordertopills_api/get-order-id/${props.orderId}`);
-        if (!response.ok) throw new Error('Failed to fetch medicines');
-        const data = await response.json();
-        medicines.value = data.map(item => item.pills);
+        const response = await axios.get(
+            `https://ifoda-shop.uz/ordertopills_api/get-order-id/${props.orderId}`
+        );
+
+        // Axios wraps the response in a data property
+        console.log('Full response:', response);
+        console.log('Response data:', response.data);
+
+        // Make sure the data structure is what you expect
+        medicines.value = Array.isArray(response.data)
+            ? response.data.map(item => item.pills)
+            : [];
+
     } catch (error) {
         console.error('Error fetching medicines:', error);
+
+        // Axios provides detailed error info
+        if (error.response) {
+            // The request was made and the server responded with a status code
+            console.error('Error data:', error.response.data);
+            console.error('Error status:', error.response.status);
+            console.error('Error headers:', error.response.headers);
+        } else if (error.request) {
+            // The request was made but no response was received
+            console.error('No response received:', error.request);
+        } else {
+            // Something happened in setting up the request
+            console.error('Request setup error:', error.message);
+        }
     } finally {
         loading.value = false;
     }
