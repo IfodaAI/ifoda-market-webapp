@@ -128,15 +128,6 @@ const connectWebSocket = () => {
             console.log('matn', messageText);
             console.log('tek', containsDiseases);
 
-            // if (containsDiseases) {
-            //     console.log('Contains diseases', showMedicinesButton.value);
-
-            //     showMedicinesButton.value = true
-            //     data.orderId = data.order || chatId // Use order from data or chatId
-            // } else {
-            //     data.showMedicinesButton = false
-            // }
-
             if (data.type === 'TEXT' && data.sender === 'USER' && messageText) {
                 messages.value.push({
                     id: data.id || Date.now(),
@@ -178,6 +169,7 @@ const fetchChatHistory = async () => {
         }
 
         const history = await response.json();
+        const containsDiseases = /Kasalliklar[:.,!?]?\b/.test(messageText)
 
         // Agar tarixda xabarlar bo'lsa, default xabarni qo'shmaslik
         if (history.length > 0) {
@@ -187,6 +179,7 @@ const fetchChatHistory = async () => {
                 image: item.type === 'IMAGE' ? item.image_url : null,
                 from: item.sender === 'BOT' ? 'me' : 'bot',
                 timestamp: item.timestamp || new Date().toISOString(),
+                showMedicinesButton: item.type === 'TEXT' && item.text && containsDiseases,
                 type: item.type || 'TEXT'
             }));
 
