@@ -123,7 +123,7 @@ const connectWebSocket = () => {
 
             // Handle both message formats (text vs message property)
             const messageText = data.text || data.message || ''
-            const containsDiseases = messageText.toLowerCase().includes('kasalliklar')
+            const containsDiseases = messageText.includes('Kasalliklar')
             if (containsDiseases) {
                 console.log('Contains diseases, showing medicines button', messageText)
                 data.showMedicinesButton = true
