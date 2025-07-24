@@ -123,17 +123,14 @@ const connectWebSocket = () => {
 
             // Handle both message formats (text vs message property)
             const messageText = data.text || data.message || ''
-            // Faqat "Kasalliklar" bilan boshlansa
-            const containsDiseases = messageText.trim().toLowerCase().startsWith('kasalliklar')
+
             if (data.type === 'TEXT' && data.sender === 'USER' && messageText) {
                 messages.value.push({
                     id: data.id || Date.now(),
                     text: messageText,
                     from: data.sender === 'USER' ? 'bot' : 'user',
                     timestamp: data.timestamp || new Date().toISOString(),
-                    showMedicinesButton: data.sender === 'USER' && containsDiseases,
-                    type: 'TEXT',
-                    orderId: chatId
+                    type: 'TEXT'
                 })
                 scrollToBottom(chatBox)
             }
@@ -167,24 +164,21 @@ const fetchChatHistory = async () => {
         }
 
         const history = await response.json();
+
+        // Agar tarixda xabarlar bo'lsa, default xabarni qo'shmaslik
         if (history.length > 0) {
-            const formattedMessages = history.map(item => {
-                const messageText = (item.text || item.message || '');
-                const containsDiseases = messageText.startsWith('Kasalliklar');
-                return {
-                    id: item.id || Date.now(),
-                    text: messageText,
-                    image: item.type === 'IMAGE' ? item.image_url : null,
-                    from: item.sender === 'USER' ? 'bot' : 'user',
-                    timestamp: item.timestamp || new Date().toISOString(),
-                    showMedicinesButton: item.sender === 'USER' && containsDiseases,
-                    type: item.type || 'TEXT',
-                    orderId: chatId
-                };
-            });
+            const formattedMessages = history.map(item => ({
+                id: item.id || Date.now(),
+                text: item.text || item.message,
+                image: item.type === 'IMAGE' ? item.image_url : null,
+                from: item.sender === 'BOT' ? 'me' : 'bot',
+                timestamp: item.timestamp || new Date().toISOString(),
+                type: item.type || 'TEXT'
+            }));
 
             messages.value = formattedMessages;
         } else {
+            // Agar tarix bo'sh bo'lsa, default xabarni qo'shamiz
             messages.value.push({
                 id: Date.now(),
                 text: "👋 Salom! Plant Doctor ga xush kelibsiz!\n📸 Kasal o'simlikning rasmini yuboring.\n🧪 Biz tahlil qilib eng yaxshi davolash usulini tavsiya qilamiz!",
