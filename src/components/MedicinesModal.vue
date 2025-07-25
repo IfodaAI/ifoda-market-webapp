@@ -113,12 +113,13 @@ onMounted(() => {
 }
 
 .modal-content {
-    background-color: white;
+    background-color: var(--bg-color);
     border-radius: 8px;
     width: 90%;
     max-width: 500px;
     max-height: 80vh;
     overflow-y: auto;
+    color: var(--text-color);
 }
 
 .modal-header {
